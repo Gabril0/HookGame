@@ -8,12 +8,15 @@ public class PlayerController : MonoBehaviour
     private float horizontalMovement;
     private float verticalMovement;
     private Vector2 tempVelocity;
+
+
     private Rigidbody2D rb;
-    private bool playerHooked = false;
+
     private Vector2 hitPoint;
     private LineRenderer lineRenderer;
     private DistanceJoint2D distanceJoint;
     private Vector2 directionHooked;
+    private bool playerHooked = false;
     private bool hittedHook = false;
 
     private float originalGravity;
@@ -23,12 +26,15 @@ public class PlayerController : MonoBehaviour
     private CapsuleCollider2D capsuleCollider;
 
     private float originalAcceleration;
-    private float speedBeforeHook;
+    private float speedOnHook;
+
+    [SerializeField] LineRenderer projection;
 
     [SerializeField] private float maxRopeSize;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField] private float acceleration;
     [SerializeField] private float maxSpeed;
+    [SerializeField] private float maxSpeedOnRope;
 
     void Start()
     {
@@ -40,6 +46,8 @@ public class PlayerController : MonoBehaviour
         originalGravity = rb.gravityScale;
         ropeGravity = 10 * originalGravity;
         capsuleCollider = GetComponent<CapsuleCollider2D>();
+        projection.enabled = true;
+
 
         originalAcceleration = acceleration;
     }
@@ -48,29 +56,51 @@ public class PlayerController : MonoBehaviour
     {
         InputRegister();
         CollisionCheck();
+        Project();
     }
 
     private void FixedUpdate()
     {
         Move();
-        
+        Debug.Log(tempVelocity);
+
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
+    }
+
+    private void Project() {
+
+        Vector2 direction = new Vector2(horizontalMovement, verticalMovement).normalized;
+
+        Vector3 secondPosition = transform.position + (Vector3)direction * maxRopeSize;
+
+        projection.SetPosition(0, transform.position);
+        projection.SetPosition(1, secondPosition);
     }
 
     private void Move() {
         acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
-        if (!hittedHook)
+
+        if (isOnGround)
         {
             tempVelocity.x += Mathf.Abs(tempVelocity.x) < maxSpeed ? horizontalMovement * acceleration : 0;
             tempVelocity.x += Mathf.Abs(tempVelocity.x) > 0 ? -tempVelocity.x / 10 : 0;
-            speedBeforeHook = tempVelocity.x;
+
+            
         }
-        else {
-            tempVelocity.x += Mathf.Abs(tempVelocity.x) > 0 ? (speedBeforeHook * Mathf.Sign(tempVelocity.x))/ 100 : 0;
+        else if (hittedHook) {
+            speedOnHook += Mathf.Abs(speedOnHook) > 0? -Mathf.Sign(speedOnHook) * acceleration/100: speedOnHook;
+            speedOnHook += Mathf.Abs(speedOnHook) < maxSpeedOnRope? horizontalMovement * acceleration / 50: 0;
+            if (rb.velocity.magnitude < 0.5f)
+            {
+                speedOnHook = -speedOnHook;
+            }
+            speedOnHook += Mathf.Abs(speedOnHook) >= 0 && Mathf.Abs(speedOnHook) <= 1 ? horizontalMovement * acceleration : 0;
+            tempVelocity.x = speedOnHook;
         }
         HookCheck();
 
     }
+
 
     private void HookCheck() {
         if (playerHooked)
@@ -80,13 +110,14 @@ public class PlayerController : MonoBehaviour
             {
                 directionHooked = new Vector2(horizontalMovement, verticalMovement);
                 hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
+                speedOnHook = tempVelocity.x;
                 hittedHook = hit;
                 if (hittedHook) hitPoint = hit ? hit.point : Vector2.zero;
             }
             else
             {
-                rb.gravityScale = ropeGravity;
-                tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
+                if (!isOnGround)rb.gravityScale = ropeGravity * 2;
+                //tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
 
 
                 lineRenderer.SetPosition(0, transform.position);
@@ -95,7 +126,9 @@ public class PlayerController : MonoBehaviour
                 distanceJoint.connectedAnchor = hitPoint;
                 distanceJoint.enabled = true;
 
-                distanceJoint.distance = ((Mathf.Abs(verticalMovement) > 0 || Mathf.Abs(horizontalMovement) > 0) && distanceJoint.distance <= maxRopeSize) ? distanceJoint.distance + 1 : distanceJoint.distance;
+                
+                distanceJoint.distance =  distanceJoint.distance < maxRopeSize/2 ? distanceJoint.distance + 1 : distanceJoint.distance - 1;
+                distanceJoint.distance = distanceJoint.distance < maxRopeSize/2 + 1 || distanceJoint.distance > maxRopeSize / 2 - 1  ? maxRopeSize/2: distanceJoint.distance;
                 distanceJoint.distance = distanceJoint.distance < 3 ? 3 : distanceJoint.distance;
 
 
@@ -109,8 +142,6 @@ public class PlayerController : MonoBehaviour
             distanceJoint.enabled = false;
             hittedHook = false;
         }
-        Debug.DrawLine(transform.position, transform.position + (Vector3)new Vector2(horizontalMovement, verticalMovement) * maxRopeSize, Color.red, ~playerLayer);
-        Debug.Log(tempVelocity);
     }
 
     private void CollisionCheck() {

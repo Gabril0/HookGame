@@ -16,9 +16,19 @@ public class PlayerController : MonoBehaviour
     private Vector2 directionHooked;
     private bool hittedHook = false;
 
+    private float originalGravity;
+    private float ropeGravity;
 
+    private bool isOnGround = false;
+    private CapsuleCollider2D capsuleCollider;
+
+    private float originalAcceleration;
+    private float speedBeforeHook;
+
+    [SerializeField] private float maxRopeSize;
     [SerializeField] private LayerMask playerLayer;
-    [SerializeField] private float speed;
+    [SerializeField] private float acceleration;
+    [SerializeField] private float maxSpeed;
 
     void Start()
     {
@@ -27,55 +37,85 @@ public class PlayerController : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
         distanceJoint = GetComponent<DistanceJoint2D>();
         distanceJoint.enabled = false;
+        originalGravity = rb.gravityScale;
+        ropeGravity = 10 * originalGravity;
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
+
+        originalAcceleration = acceleration;
     }
 
     void Update()
     {
         InputRegister();
+        CollisionCheck();
     }
 
     private void FixedUpdate()
     {
         Move();
-        rb.velocity = new Vector2(tempVelocity.x, rb.velocity.y);
+        
+        rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
 
     private void Move() {
+        acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
+        if (!hittedHook)
+        {
+            tempVelocity.x += Mathf.Abs(tempVelocity.x) < maxSpeed ? horizontalMovement * acceleration : 0;
+            tempVelocity.x += Mathf.Abs(tempVelocity.x) > 0 ? -tempVelocity.x / 10 : 0;
+            speedBeforeHook = tempVelocity.x;
+        }
+        else {
+            tempVelocity.x += Mathf.Abs(tempVelocity.x) > 0 ? (speedBeforeHook * Mathf.Sign(tempVelocity.x))/ 100 : 0;
+        }
+        HookCheck();
 
-        //steps
-        //make raycast circle throught the player
-        //keep the distance joint anchor and not disable it, dont update the distance after that, just need the ray to know if it hitted
-        tempVelocity.x = horizontalMovement * speed;
+    }
 
-        
+    private void HookCheck() {
         if (playerHooked)
         {
             RaycastHit2D hit;
-            if (!hittedHook) {
+            if (!hittedHook)
+            {
                 directionHooked = new Vector2(horizontalMovement, verticalMovement);
-                hit = Physics2D.Raycast(transform.position, directionHooked, 10, ~playerLayer);
+                hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
                 hittedHook = hit;
-                if(hittedHook) hitPoint = hit ? hit.point : Vector2.zero;
+                if (hittedHook) hitPoint = hit ? hit.point : Vector2.zero;
             }
-            else {
-                
+            else
+            {
+                rb.gravityScale = ropeGravity;
+                tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
+
 
                 lineRenderer.SetPosition(0, transform.position);
                 lineRenderer.SetPosition(1, hitPoint);
                 lineRenderer.enabled = true;
-                distanceJoint.enabled = true;
                 distanceJoint.connectedAnchor = hitPoint;
+                distanceJoint.enabled = true;
+
+                distanceJoint.distance = ((Mathf.Abs(verticalMovement) > 0 || Mathf.Abs(horizontalMovement) > 0) && distanceJoint.distance <= maxRopeSize) ? distanceJoint.distance + 1 : distanceJoint.distance;
+                distanceJoint.distance = distanceJoint.distance < 3 ? 3 : distanceJoint.distance;
+
+
             }
 
         }
-        else {
+        else
+        {
+            rb.gravityScale = originalGravity;
             lineRenderer.enabled = false;
             distanceJoint.enabled = false;
             hittedHook = false;
         }
-        Debug.DrawLine(transform.position, transform.position + (Vector3)new Vector2(horizontalMovement, verticalMovement) * 10, Color.red, ~playerLayer);
-        Debug.Log(hitPoint);
+        Debug.DrawLine(transform.position, transform.position + (Vector3)new Vector2(horizontalMovement, verticalMovement) * maxRopeSize, Color.red, ~playerLayer);
+        Debug.Log(tempVelocity);
+    }
 
+    private void CollisionCheck() {
+        isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)
+            , capsuleCollider.direction, 0,Vector2.down, 0.05f, ~playerLayer);
     }
     private void InputRegister() {
         horizontalMovement = Input.GetAxis("Horizontal");

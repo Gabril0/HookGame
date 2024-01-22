@@ -800,7 +800,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 9.7
+  m_GravityScale: 5
   m_Material: {fileID: 6200000, guid: 48ef4f213015b824ab0d74f39cd4a936, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -810,7 +810,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &1902509821
 MonoBehaviour:
@@ -824,10 +824,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28346ee3ad42ee444a67b49806bf5a39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxRopeSize: 10
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  speed: 25
+  acceleration: 3
+  maxSpeed: 10
 --- !u!232 &1902509822
 DistanceJoint2D:
   m_ObjectHideFlags: 0
@@ -845,7 +847,7 @@ DistanceJoint2D:
   m_AutoConfigureConnectedAnchor: 0
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
-  m_AutoConfigureDistance: 0
+  m_AutoConfigureDistance: 1
   m_Distance: 2.13115
   m_MaxDistanceOnly: 1
 --- !u!120 &1902509823

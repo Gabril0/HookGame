@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class PlayerController : MonoBehaviour
 {
@@ -59,7 +60,7 @@ public class PlayerController : MonoBehaviour
         Project();
     }
 
-    private void FixedUpdate()
+    private void FixedUpdate() // make the player shoot some rectangles an his eye at the end to simulate the rope when he doesnt hit anything
     {
         Move();
         Debug.Log(tempVelocity);
@@ -112,6 +113,7 @@ public class PlayerController : MonoBehaviour
                 hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
                 speedOnHook = tempVelocity.x;
                 hittedHook = hit;
+                rb.freezeRotation = false;
                 if (hittedHook) hitPoint = hit ? hit.point : Vector2.zero;
             }
             else
@@ -141,6 +143,8 @@ public class PlayerController : MonoBehaviour
             lineRenderer.enabled = false;
             distanceJoint.enabled = false;
             hittedHook = false;
+            rb.freezeRotation = true;
+            transform.rotation = Quaternion.Euler(0,0,0);
         }
     }
 

@@ -9,6 +9,7 @@ public class PlayerAnimator : MonoBehaviour
     private PlayerController controller;
     [SerializeField] private Animator animator;
     [SerializeField] private GameObject spinningShadow;
+    private float rotationAmmount = 0;
     void Start()
     {
         rb = GetComponentInParent<Rigidbody2D>();
@@ -31,5 +32,14 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetBool("IsHooking",controller.playerHooked);
 
         spinningShadow.SetActive(controller.playerHooked);
+
+        if (controller.hittedHook)
+        {
+            rotationAmmount = -rb.velocity.x;
+            transform.Rotate(Vector3.forward, rotationAmmount);
+        }
+        if(!controller.playerHooked) {
+            transform.rotation = Quaternion.identity;
+        }
     }
 }

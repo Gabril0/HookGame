@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.XR;
@@ -18,7 +19,7 @@ public class PlayerController : MonoBehaviour
     private DistanceJoint2D distanceJoint;
     private Vector2 directionHooked;
     public bool playerHooked { get; set; }
-    private bool hittedHook = false;
+    public bool hittedHook = false;
 
     private float originalGravity;
     private float ropeGravity;
@@ -37,6 +38,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float accelerationOnRope;
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxSpeedOnRope;
+
+    [SerializeField] GameObject eyeHook;
 
     void Start()
     {
@@ -118,6 +121,7 @@ public class PlayerController : MonoBehaviour
                 if (hittedHook) hitPoint = hit ? hit.point : Vector2.zero;
             }
             else
+            
             {
                 if (!isOnGround)rb.gravityScale = ropeGravity * 2;
                 //tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
@@ -136,7 +140,7 @@ public class PlayerController : MonoBehaviour
 
 
             }
-
+            EyeHook();
         }
         else
         {
@@ -149,9 +153,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void EyeHook() {
+        //instanciar eyehooks em direcao do raycast, ativar fisica caso o raycast tenha sido falso
+        //continuar a instanciar ate que chegue no ponto do raycast, sempre colocar o sprite do olho no primeiro
+        //Fixar o hook somente quando o olho realmente encostar na parede
+  
+        float angle = Mathf.Atan2(directionHooked.y, directionHooked.x) * Mathf.Rad2Deg;
+
+        //Instantiate(eyeHook, transform.position, Quaternion.Euler(0f, 0f, angle));
+    }
+
     private void CollisionCheck() {
         isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)
-            , capsuleCollider.direction, 0,Vector2.down, 0.05f, ~playerLayer);
+            , capsuleCollider.direction, 0,Vector2.down, 0.1f, ~playerLayer);
     }
     private void InputRegister() {
         horizontalMovement = Input.GetAxis("Horizontal");

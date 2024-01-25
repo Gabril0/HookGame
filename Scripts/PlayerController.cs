@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     private LineRenderer lineRenderer;
     private DistanceJoint2D distanceJoint;
     private Vector2 directionHooked;
-    private bool playerHooked = false;
+    public bool playerHooked { get; set; }
     private bool hittedHook = false;
 
     private float originalGravity;
@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxRopeSize;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField] private float acceleration;
+    [SerializeField] private float accelerationOnRope;
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxSpeedOnRope;
 
@@ -89,13 +90,13 @@ public class PlayerController : MonoBehaviour
             
         }
         else if (hittedHook) {
-            speedOnHook += Mathf.Abs(speedOnHook) > 0? -Mathf.Sign(speedOnHook) * acceleration/100: speedOnHook;
-            speedOnHook += Mathf.Abs(speedOnHook) < maxSpeedOnRope? horizontalMovement * acceleration / 50: 0;
+            speedOnHook += Mathf.Abs(speedOnHook) > 0? -Mathf.Sign(speedOnHook) * accelerationOnRope/100: speedOnHook;
+            speedOnHook += Mathf.Abs(speedOnHook) < maxSpeedOnRope? horizontalMovement * accelerationOnRope / 50: 0;
             if (rb.velocity.magnitude < 0.5f)
             {
                 speedOnHook = -speedOnHook;
             }
-            speedOnHook += Mathf.Abs(speedOnHook) >= 0 && Mathf.Abs(speedOnHook) <= 1 ? horizontalMovement * acceleration : 0;
+            speedOnHook += Mathf.Abs(speedOnHook) >= 0 && Mathf.Abs(speedOnHook) <= 1 ? horizontalMovement * accelerationOnRope : 0;
             tempVelocity.x = speedOnHook;
         }
         HookCheck();
@@ -106,6 +107,7 @@ public class PlayerController : MonoBehaviour
     private void HookCheck() {
         if (playerHooked)
         {
+            rb.freezeRotation = false;
             RaycastHit2D hit;
             if (!hittedHook)
             {
@@ -113,7 +115,6 @@ public class PlayerController : MonoBehaviour
                 hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
                 speedOnHook = tempVelocity.x;
                 hittedHook = hit;
-                rb.freezeRotation = false;
                 if (hittedHook) hitPoint = hit ? hit.point : Vector2.zero;
             }
             else

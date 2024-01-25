@@ -6,10 +6,15 @@ public class PlayerAnimator : MonoBehaviour
 {
     private Rigidbody2D rb;
     private SpriteRenderer sprite;
+    private PlayerController controller;
+    [SerializeField] private Animator animator;
+    [SerializeField] private GameObject spinningShadow;
     void Start()
     {
         rb = GetComponentInParent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
+        controller = GetComponentInParent<PlayerController>();
+        spinningShadow.SetActive(false);
     }
 
     // Update is called once per frame
@@ -23,5 +28,8 @@ public class PlayerAnimator : MonoBehaviour
         {
             sprite.flipX = true;
         }
+        animator.SetBool("IsHooking",controller.playerHooked);
+
+        spinningShadow.SetActive(controller.playerHooked);
     }
 }

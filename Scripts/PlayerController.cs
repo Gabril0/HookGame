@@ -39,7 +39,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxSpeedOnRope;
 
-    [SerializeField] GameObject eyeHook;
+    [SerializeField] GameObject eyeHookSegment;
+    [SerializeField] GameObject eyeEnd;
+    private GameObject eyeHook;
+    private int hookSize = 5;
+    private bool eyeHookStarted = false;
+    private bool eyesHooked = false; 
 
     void Start()
     {
@@ -67,7 +72,6 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate() // make the player shoot some rectangles an his eye at the end to simulate the rope when he doesnt hit anything
     {
         Move();
-        Debug.Log(tempVelocity);
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
@@ -149,18 +153,36 @@ public class PlayerController : MonoBehaviour
             distanceJoint.enabled = false;
             hittedHook = false;
             rb.freezeRotation = true;
+            eyesHooked = false;
             transform.rotation = Quaternion.Euler(0,0,0);
         }
     }
 
     private void EyeHook() {
-        //instanciar eyehooks em direcao do raycast, ativar fisica caso o raycast tenha sido falso
-        //continuar a instanciar ate que chegue no ponto do raycast, sempre colocar o sprite do olho no primeiro
-        //Fixar o hook somente quando o olho realmente encostar na parede
   
         float angle = Mathf.Atan2(directionHooked.y, directionHooked.x) * Mathf.Rad2Deg;
+        if (!eyesHooked) {
+            GameObject eye = gameObject;
+            eyeHook = new GameObject();
+            GameObject[] newHook = new GameObject[hookSize];
+            if (!eyeHookStarted) {
+                eye = Instantiate(eyeEnd, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
+                eye.gameObject.transform.SetParent(eyeHook.transform);
+                eyeHookStarted = true;
+            }
+            for (int i = 0; i < hookSize; i++) {
+                newHook[i] = Instantiate(eyeHookSegment, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
+                newHook[i].gameObject.transform.SetParent(eyeHook.transform);
+                HingeJoint2D hookJoint = newHook[i].GetComponent<HingeJoint2D>();
+                hookJoint.connectedBody = i == 0 ? eye.GetComponent<Rigidbody2D>(): newHook[i-1].GetComponent<Rigidbody2D>();
+            }
 
-        //Instantiate(eyeHook, transform.position, Quaternion.Euler(0f, 0f, angle));
+            eyeHook.AddComponent<ThrowEyeHook>();
+            eyeHook.GetComponent<ThrowEyeHook>().speed = 0.5f;
+            eyesHooked = true;
+            eyeHookStarted = false;
+        }
+        //make it go back to the player in the else if it was active
     }
 
     private void CollisionCheck() {

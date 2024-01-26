@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class ThrowEyeHook : MonoBehaviour
 {
-    [SerializeField] float speed;
+    [SerializeField] public float speed;
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        transform.position = Vector3.up * speed;
+        transform.position += transform.up * speed;
+        transform.position = new Vector3(transform.position.x, transform.position.y, -0.5f);
     }
 }

@@ -474,7 +474,7 @@ GameObject:
   - component: {fileID: 1119948619}
   - component: {fileID: 1119948618}
   - component: {fileID: 1119948620}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37517,6 +37517,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0.5
+  foundWall: 0
 --- !u!4 &1378684895 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5797110822894931798, guid: 5f3dfccd7b693894396e711295dfc0ad, type: 3}
@@ -37537,7 +37538,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1504490618}
   - component: {fileID: 1504490617}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38101,18 +38102,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 6846911397039623409, guid: 6a1c38e117c1e1e4f9b54f3244ba60a8, type: 3}
-      propertyPath: eyeEnd
-      value: 
-      objectReference: {fileID: 6853118218173998996, guid: 5f3dfccd7b693894396e711295dfc0ad, type: 3}
-    - target: {fileID: 6846911397039623409, guid: 6a1c38e117c1e1e4f9b54f3244ba60a8, type: 3}
-      propertyPath: eyeHook
-      value: 
-      objectReference: {fileID: 1316581867}
-    - target: {fileID: 6846911397039623409, guid: 6a1c38e117c1e1e4f9b54f3244ba60a8, type: 3}
-      propertyPath: eyeHookSegment
-      value: 
-      objectReference: {fileID: 2744382595538101242, guid: ad4a7ce338c6bb041a151ede27a000b7, type: 3}
     - target: {fileID: 7092229298062060529, guid: 6a1c38e117c1e1e4f9b54f3244ba60a8, type: 3}
       propertyPath: m_RootOrder
       value: 5

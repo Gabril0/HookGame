@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     private float speedOnHook;
 
     [SerializeField] LineRenderer projection;
+    private UnityEngine.Color projectionYellow = new UnityEngine.Color(255f / 255f, 255f / 255f, 13f / 255f, 1f);
+    private UnityEngine.Color projectionGray = new UnityEngine.Color(200f / 255f, 200f / 255f, 200f / 255f, 0.5f);
+
 
     [SerializeField] private float maxRopeSize;
     [SerializeField] private LayerMask playerLayer;
@@ -39,8 +42,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxSpeedOnRope;
 
+
+    [SerializeField] private LineRenderer hookAttemptLine;
+    private float lerpProgression = 0;
+    private Vector3 currentAttemptLine = Vector3.zero;
+    private Vector3 desiredAttemptPoint;
+
     [SerializeField] GameObject eyeHookSegment;
     [SerializeField] GameObject eyeEnd;
+    private GameObject eyeInstance;
     private GameObject eyeHook;
     private int hookSize = 5;
     private bool eyeHookStarted = false;
@@ -58,7 +68,6 @@ public class PlayerController : MonoBehaviour
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         projection.enabled = true;
 
-
         originalAcceleration = acceleration;
     }
 
@@ -72,6 +81,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate() // make the player shoot some rectangles an his eye at the end to simulate the rope when he doesnt hit anything
     {
         Move();
+        TryToHook();
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
@@ -81,7 +91,9 @@ public class PlayerController : MonoBehaviour
         Vector2 direction = new Vector2(horizontalMovement, verticalMovement).normalized;
 
         Vector3 secondPosition = transform.position + (Vector3)direction * maxRopeSize;
-
+        bool projectionPossible = Physics2D.Raycast(transform.position, direction, maxRopeSize, ~playerLayer);
+        projection.startColor = projectionPossible ? projectionYellow : projectionGray ;
+        projection.endColor = projectionPossible ? projectionYellow : projectionGray; ;
         projection.SetPosition(0, transform.position);
         projection.SetPosition(1, secondPosition);
     }
@@ -106,11 +118,30 @@ public class PlayerController : MonoBehaviour
             speedOnHook += Mathf.Abs(speedOnHook) >= 0 && Mathf.Abs(speedOnHook) <= 1 ? horizontalMovement * accelerationOnRope : 0;
             tempVelocity.x = speedOnHook;
         }
-        HookCheck();
+
 
     }
 
-
+    private void TryToHook() {
+        directionHooked = new Vector2(horizontalMovement, verticalMovement);
+        desiredAttemptPoint = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer).point;
+        if (Vector3.Distance(transform.position, desiredAttemptPoint) > 0.1f && Vector3.Distance(transform.position, desiredAttemptPoint) <= maxRopeSize)
+        {
+            lerpProgression += 1 / 10;
+            currentAttemptLine = Vector3.Lerp(transform.position, desiredAttemptPoint, lerpProgression);
+            hookAttemptLine.SetPosition(0, transform.position);
+            hookAttemptLine.SetPosition(1, currentAttemptLine);
+            hookAttemptLine.enabled = true;
+        }
+        else {
+            //currentAttemptLine -= desiredAttemptPoint / 5;
+            lerpProgression = 0;
+            currentAttemptLine = Vector3.zero;
+            hookAttemptLine.enabled = false;
+            HookCheck();
+        }
+        
+    }
     private void HookCheck() {
         if (playerHooked)
         {
@@ -118,11 +149,15 @@ public class PlayerController : MonoBehaviour
             RaycastHit2D hit;
             if (!hittedHook)
             {
-                directionHooked = new Vector2(horizontalMovement, verticalMovement);
+                directionHooked = new Vector2(horizontalMovement,verticalMovement);
                 hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
                 speedOnHook = tempVelocity.x;
                 hittedHook = hit;
-                if (hittedHook) hitPoint = hit ? hit.point : Vector2.zero;
+                if (hittedHook)
+                {
+                    hitPoint = hit ? hit.point : Vector2.zero;
+                    eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3 (0,0,-5), Quaternion.identity);
+                }
             }
             else
             
@@ -144,7 +179,6 @@ public class PlayerController : MonoBehaviour
 
 
             }
-            EyeHook();
         }
         else
         {
@@ -154,36 +188,53 @@ public class PlayerController : MonoBehaviour
             hittedHook = false;
             rb.freezeRotation = true;
             eyesHooked = false;
-            transform.rotation = Quaternion.Euler(0,0,0);
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+            if (eyeInstance != null) {
+                Destroy(eyeInstance);
+            }
         }
+
     }
 
-    private void EyeHook() {
+    //private void EyeHook() {
   
-        float angle = Mathf.Atan2(directionHooked.y, directionHooked.x) * Mathf.Rad2Deg;
-        if (!eyesHooked) {
-            GameObject eye = gameObject;
-            eyeHook = new GameObject();
-            GameObject[] newHook = new GameObject[hookSize];
-            if (!eyeHookStarted) {
-                eye = Instantiate(eyeEnd, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
-                eye.gameObject.transform.SetParent(eyeHook.transform);
-                eyeHookStarted = true;
-            }
-            for (int i = 0; i < hookSize; i++) {
-                newHook[i] = Instantiate(eyeHookSegment, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
-                newHook[i].gameObject.transform.SetParent(eyeHook.transform);
-                HingeJoint2D hookJoint = newHook[i].GetComponent<HingeJoint2D>();
-                hookJoint.connectedBody = i == 0 ? eye.GetComponent<Rigidbody2D>(): newHook[i-1].GetComponent<Rigidbody2D>();
-            }
+    //    float angle = Mathf.Atan2(directionHooked.y, directionHooked.x) * Mathf.Rad2Deg;
+    //    if (!eyesHooked && playerHooked) {
+    //        GameObject eye = gameObject;
+    //        eyeHook = new GameObject();
+    //        GameObject[] newHook = new GameObject[hookSize];
+    //        if (!eyeHookStarted) {
+    //            eye = Instantiate(eyeEnd, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
+    //            eye.gameObject.transform.SetParent(eyeHook.transform);
+    //            eyeHookStarted = true;
+    //        }
+    //        for (int i = 0; i < hookSize; i++) {
+    //            newHook[i] = Instantiate(eyeHookSegment, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
+    //            newHook[i].gameObject.transform.SetParent(eyeHook.transform);
+    //            HingeJoint2D hookJoint = newHook[i].GetComponent<HingeJoint2D>();
+    //            hookJoint.connectedBody = i == 0 ? eye.GetComponent<Rigidbody2D>(): newHook[i-1].GetComponent<Rigidbody2D>();
+    //        }
 
-            eyeHook.AddComponent<ThrowEyeHook>();
-            eyeHook.GetComponent<ThrowEyeHook>().speed = 0.5f;
-            eyesHooked = true;
-            eyeHookStarted = false;
-        }
-        //make it go back to the player in the else if it was active
-    }
+    //        eyeHook.AddComponent<ThrowEyeHook>();
+    //        eyeHook.GetComponent<ThrowEyeHook>().speed = 0.5f;
+    //        eyeHook.AddComponent<DistanceJoint2D>();
+    //        eyeHook.GetComponent<DistanceJoint2D>().connectedBody = rb;
+    //        eyeHook.GetComponent<DistanceJoint2D>().maxDistanceOnly = true;
+    //        eyeHook.GetComponent<DistanceJoint2D>().distance = 2;
+    //        eyeHook.AddComponent<CompositeCollider2D>();
+    //        eyeHook.GetComponent<CompositeCollider2D>().isTrigger = true;
+    //        eyesHooked = true;
+    //        eyeHookStarted = false;
+    //    }
+    //    if (eyeHook != null) {
+    //        if (eyeHook.GetComponent<ThrowEyeHook>().foundWall) {
+    //            HookCheck();
+    //        }
+    //    }
+
+ 
+    //    //make it go back to the player in the else if it was active
+    //}
 
     private void CollisionCheck() {
         isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)

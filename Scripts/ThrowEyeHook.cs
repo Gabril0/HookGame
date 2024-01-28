@@ -5,6 +5,7 @@ using UnityEngine;
 public class ThrowEyeHook : MonoBehaviour
 {
     [SerializeField] public float speed;
+    [SerializeField] public bool foundWall = false;
 
     // Update is called once per frame
     void FixedUpdate()

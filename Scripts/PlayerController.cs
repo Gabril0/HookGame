@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.XR;
 
 public class PlayerController : MonoBehaviour
@@ -42,11 +43,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxSpeedOnRope;
 
+    [SerializeField] private Animator eyeThrowAnimation;
+    private bool canPlayEyeThrowAnimation = true;
 
-    [SerializeField] private LineRenderer hookAttemptLine;
-    private float lerpProgression = 0;
-    private Vector3 currentAttemptLine = Vector3.zero;
-    private Vector3 desiredAttemptPoint;
 
     [SerializeField] GameObject eyeHookSegment;
     [SerializeField] GameObject eyeEnd;
@@ -68,6 +67,8 @@ public class PlayerController : MonoBehaviour
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         projection.enabled = true;
 
+        eyeThrowAnimation.enabled = false;
+
         originalAcceleration = acceleration;
     }
 
@@ -81,7 +82,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate() // make the player shoot some rectangles an his eye at the end to simulate the rope when he doesnt hit anything
     {
         Move();
-        TryToHook();
+        HookCheck();
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
@@ -122,75 +123,75 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private void TryToHook() {
-        directionHooked = new Vector2(horizontalMovement, verticalMovement);
-        desiredAttemptPoint = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer).point;
-        if (Vector3.Distance(transform.position, desiredAttemptPoint) > 0.1f && Vector3.Distance(transform.position, desiredAttemptPoint) <= maxRopeSize)
-        {
-            lerpProgression += 1 / 10;
-            currentAttemptLine = Vector3.Lerp(transform.position, desiredAttemptPoint, lerpProgression);
-            hookAttemptLine.SetPosition(0, transform.position);
-            hookAttemptLine.SetPosition(1, currentAttemptLine);
-            hookAttemptLine.enabled = true;
-        }
-        else {
-            //currentAttemptLine -= desiredAttemptPoint / 5;
-            lerpProgression = 0;
-            currentAttemptLine = Vector3.zero;
-            hookAttemptLine.enabled = false;
-            HookCheck();
-        }
-        
-    }
     private void HookCheck() {
-        if (playerHooked)
+        if (canPlayEyeThrowAnimation) { 
+            eyeThrowAnimation.enabled = true;
+            eyeThrowAnimation.Play("EyeThrow");
+            eyeThrowAnimation.speed = 1;
+            canPlayEyeThrowAnimation = false;
+        }
+        if (eyeThrowAnimation.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f && !eyeThrowAnimation.IsInTransition(0))
         {
-            rb.freezeRotation = false;
-            RaycastHit2D hit;
-            if (!hittedHook)
+            
+            if (playerHooked)
             {
-                directionHooked = new Vector2(horizontalMovement,verticalMovement);
-                hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
-                speedOnHook = tempVelocity.x;
-                hittedHook = hit;
-                if (hittedHook)
+                rb.freezeRotation = false;
+                RaycastHit2D hit;
+                if (!hittedHook)
                 {
-                    hitPoint = hit ? hit.point : Vector2.zero;
-                    eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3 (0,0,-5), Quaternion.identity);
+                    directionHooked = new Vector2(horizontalMovement, verticalMovement);
+                    hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
+                    speedOnHook = tempVelocity.x;
+                    hittedHook = hit;
+                    if (hittedHook)
+                    {
+                        eyeThrowAnimation.enabled = false;
+                        canPlayEyeThrowAnimation = false;
+
+                        hitPoint = hit ? hit.point : Vector2.zero;
+                        eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3(0, 0, -5), Quaternion.identity);
+                    }
+                    else {
+                        eyeThrowAnimation.enabled = true;
+                        eyeThrowAnimation.Play("EyeThrowReversed");
+                        canPlayEyeThrowAnimation = false;
+                    }
+                }
+                else
+
+                {
+                    if (!isOnGround) rb.gravityScale = ropeGravity * 2;
+                    //tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
+
+
+                    lineRenderer.SetPosition(0, transform.position);
+                    lineRenderer.SetPosition(1, hitPoint);
+                    lineRenderer.enabled = true;
+                    distanceJoint.connectedAnchor = hitPoint;
+                    distanceJoint.enabled = true;
+
+
+                    distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 ? distanceJoint.distance + 1 : distanceJoint.distance - 1;
+                    distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 + 1 || distanceJoint.distance > maxRopeSize / 2 - 1 ? maxRopeSize / 2 : distanceJoint.distance;
+                    distanceJoint.distance = distanceJoint.distance < 3 ? 3 : distanceJoint.distance;
+
+
                 }
             }
             else
-            
             {
-                if (!isOnGround)rb.gravityScale = ropeGravity * 2;
-                //tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
-
-
-                lineRenderer.SetPosition(0, transform.position);
-                lineRenderer.SetPosition(1, hitPoint);
-                lineRenderer.enabled = true;
-                distanceJoint.connectedAnchor = hitPoint;
-                distanceJoint.enabled = true;
-
-                
-                distanceJoint.distance =  distanceJoint.distance < maxRopeSize/2 ? distanceJoint.distance + 1 : distanceJoint.distance - 1;
-                distanceJoint.distance = distanceJoint.distance < maxRopeSize/2 + 1 || distanceJoint.distance > maxRopeSize / 2 - 1  ? maxRopeSize/2: distanceJoint.distance;
-                distanceJoint.distance = distanceJoint.distance < 3 ? 3 : distanceJoint.distance;
-
-
-            }
-        }
-        else
-        {
-            rb.gravityScale = originalGravity;
-            lineRenderer.enabled = false;
-            distanceJoint.enabled = false;
-            hittedHook = false;
-            rb.freezeRotation = true;
-            eyesHooked = false;
-            transform.rotation = Quaternion.Euler(0, 0, 0);
-            if (eyeInstance != null) {
-                Destroy(eyeInstance);
+                canPlayEyeThrowAnimation = true;
+                rb.gravityScale = originalGravity;
+                lineRenderer.enabled = false;
+                distanceJoint.enabled = false;
+                hittedHook = false;
+                rb.freezeRotation = true;
+                eyesHooked = false;
+                transform.rotation = Quaternion.Euler(0, 0, 0);
+                if (eyeInstance != null)
+                {
+                    Destroy(eyeInstance);
+                }
             }
         }
 

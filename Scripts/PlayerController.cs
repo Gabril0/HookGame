@@ -43,6 +43,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxSpeedOnRope;
 
+    private RaycastHit2D hit;
+
     [SerializeField] private Animator eyeThrowAnimation;
     private bool canPlayEyeThrowAnimation = true;
 
@@ -50,10 +52,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject eyeHookSegment;
     [SerializeField] GameObject eyeEnd;
     private GameObject eyeInstance;
-    private GameObject eyeHook;
-    private int hookSize = 5;
-    private bool eyeHookStarted = false;
-    private bool eyesHooked = false; 
+    private bool canInstanceEye = true;
 
     void Start()
     {
@@ -124,38 +123,26 @@ public class PlayerController : MonoBehaviour
     }
 
     private void HookCheck() {
-        if (canPlayEyeThrowAnimation) { 
+        eyeThrowAnimation.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(directionHooked.y, directionHooked.x) * Mathf.Rad2Deg);
+        if (canPlayEyeThrowAnimation && playerHooked) { 
             eyeThrowAnimation.enabled = true;
             eyeThrowAnimation.Play("EyeThrow");
             eyeThrowAnimation.speed = 1;
             canPlayEyeThrowAnimation = false;
+            eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = true;
         }
-        if (eyeThrowAnimation.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f && !eyeThrowAnimation.IsInTransition(0))
-        {
-            
+
             if (playerHooked)
             {
                 rb.freezeRotation = false;
-                RaycastHit2D hit;
-                if (!hittedHook)
+                
+                if (!hittedHook )
                 {
                     directionHooked = new Vector2(horizontalMovement, verticalMovement);
                     hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
                     speedOnHook = tempVelocity.x;
-                    hittedHook = hit;
-                    if (hittedHook)
-                    {
-                        eyeThrowAnimation.enabled = false;
-                        canPlayEyeThrowAnimation = false;
-
-                        hitPoint = hit ? hit.point : Vector2.zero;
-                        eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3(0, 0, -5), Quaternion.identity);
-                    }
-                    else {
-                        eyeThrowAnimation.enabled = true;
-                        eyeThrowAnimation.Play("EyeThrowReversed");
-                        canPlayEyeThrowAnimation = false;
-                    }
+                    Invoke("HookActivation",eyeThrowAnimation.GetCurrentAnimatorStateInfo(0).length);
+                    
                 }
                 else
 
@@ -180,21 +167,36 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+
                 canPlayEyeThrowAnimation = true;
+                eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = false;
                 rb.gravityScale = originalGravity;
                 lineRenderer.enabled = false;
                 distanceJoint.enabled = false;
                 hittedHook = false;
                 rb.freezeRotation = true;
-                eyesHooked = false;
                 transform.rotation = Quaternion.Euler(0, 0, 0);
                 if (eyeInstance != null)
                 {
                     Destroy(eyeInstance);
+                    canInstanceEye = true;
                 }
             }
+    }
+    private void HookActivation() {
+        hittedHook = hit;
+        if (hittedHook)
+        {
+            eyeThrowAnimation.enabled = false;
+            canPlayEyeThrowAnimation = false;
+            eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = false;
+            
+            hitPoint = hit ? hit.point : Vector2.zero;
+            if (canInstanceEye) { 
+                eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3(0, 0, -5), Quaternion.identity);
+                canInstanceEye = false;
+            }
         }
-
     }
 
     //private void EyeHook() {

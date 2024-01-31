@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
     private float originalAcceleration;
     private float speedOnHook;
 
-    [SerializeField] LineRenderer projection;
+    [SerializeField] SpriteRenderer projection;
     private UnityEngine.Color projectionYellow = new UnityEngine.Color(255f / 255f, 255f / 255f, 13f / 255f, 1f);
     private UnityEngine.Color projectionGray = new UnityEngine.Color(200f / 255f, 200f / 255f, 200f / 255f, 0.5f);
 
@@ -53,6 +53,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject eyeEnd;
     private GameObject eyeInstance;
     private bool canInstanceEye = true;
+
+    private bool hitWallRight;
+    private bool hitWallLeft;
 
     void Start()
     {
@@ -86,22 +89,29 @@ public class PlayerController : MonoBehaviour
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
 
-    private void Project() {
-
+    private void Project()
+    {
         Vector2 direction = new Vector2(horizontalMovement, verticalMovement).normalized;
 
-        Vector3 secondPosition = transform.position + (Vector3)direction * maxRopeSize;
-        bool projectionPossible = Physics2D.Raycast(transform.position, direction, maxRopeSize, ~playerLayer);
-        projection.startColor = projectionPossible ? projectionYellow : projectionGray ;
-        projection.endColor = projectionPossible ? projectionYellow : projectionGray; ;
-        projection.SetPosition(0, transform.position);
-        projection.SetPosition(1, secondPosition);
+        float distanceFromPlayer = 4f;
+        projection.transform.position = transform.position + new Vector3(direction.x * distanceFromPlayer, direction.y * distanceFromPlayer, 0f);
+        projection.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+
+        projection.color = Physics2D.Raycast(transform.position, direction, maxRopeSize, ~playerLayer) ? projectionYellow : projectionGray;
+        projection.enabled = (horizontalMovement == 0 && verticalMovement == 0) ? false : true;
     }
+
 
     private void Move() {
         acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
-
-        if (isOnGround)
+        if (tempVelocity.x > 0 && hitWallRight && !isOnGround) {
+            tempVelocity.x = 0;
+        }
+        if (tempVelocity.x < 0 && hitWallLeft && !isOnGround)
+        {
+            tempVelocity.x = 0;
+        }
+        if (isOnGround && !playerHooked)
         {
             tempVelocity.x += Mathf.Abs(tempVelocity.x) < maxSpeed ? horizontalMovement * acceleration : 0;
             tempVelocity.x += Mathf.Abs(tempVelocity.x) > 0 ? -tempVelocity.x / 10 : 0;
@@ -123,7 +133,10 @@ public class PlayerController : MonoBehaviour
     }
 
     private void HookCheck() {
-        eyeThrowAnimation.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(directionHooked.y, directionHooked.x) * Mathf.Rad2Deg);
+        Vector2 direction = new Vector2(horizontalMovement, verticalMovement).normalized;
+        eyeThrowAnimation.transform.parent = null; // making this because of a bug when rotating
+        eyeThrowAnimation.transform.position = transform.position;
+        eyeThrowAnimation.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
         if (canPlayEyeThrowAnimation && playerHooked) { 
             eyeThrowAnimation.enabled = true;
             eyeThrowAnimation.Play("EyeThrow");
@@ -242,6 +255,11 @@ public class PlayerController : MonoBehaviour
     private void CollisionCheck() {
         isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)
             , capsuleCollider.direction, 0,Vector2.down, 0.1f, ~playerLayer);
+        hitWallLeft = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
+            , capsuleCollider.direction, 0, Vector2.left, 0.1f, ~playerLayer);
+        hitWallRight = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
+            , capsuleCollider.direction, 0, Vector2.right, 0.1f, ~playerLayer);
+
     }
     private void InputRegister() {
         horizontalMovement = Input.GetAxis("Horizontal");

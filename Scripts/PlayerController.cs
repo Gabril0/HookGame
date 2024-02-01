@@ -56,6 +56,7 @@ public class PlayerController : MonoBehaviour
 
     private bool hitWallRight;
     private bool hitWallLeft;
+    private float lastTimeTouchedGround = 0;
 
     void Start()
     {
@@ -104,10 +105,10 @@ public class PlayerController : MonoBehaviour
 
     private void Move() {
         acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
-        if (tempVelocity.x > 0 && hitWallRight && !isOnGround) {
+        if (tempVelocity.x > 0 && hitWallRight && ( Time.time - lastTimeTouchedGround > 0.5f)) {
             tempVelocity.x = 0;
         }
-        if (tempVelocity.x < 0 && hitWallLeft && !isOnGround)
+        if (tempVelocity.x < 0 && hitWallLeft && ( Time.time - lastTimeTouchedGround > 0.5f))
         {
             tempVelocity.x = 0;
         }
@@ -121,7 +122,7 @@ public class PlayerController : MonoBehaviour
         else if (hittedHook) {
             speedOnHook += Mathf.Abs(speedOnHook) > 0? -Mathf.Sign(speedOnHook) * accelerationOnRope/100: speedOnHook;
             speedOnHook += Mathf.Abs(speedOnHook) < maxSpeedOnRope? horizontalMovement * accelerationOnRope / 50: 0;
-            if (rb.velocity.magnitude < 0.5f)
+            if (rb.velocity.magnitude < 0.75f)
             {
                 speedOnHook = -speedOnHook;
             }
@@ -255,6 +256,7 @@ public class PlayerController : MonoBehaviour
     private void CollisionCheck() {
         isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)
             , capsuleCollider.direction, 0,Vector2.down, 0.1f, ~playerLayer);
+        lastTimeTouchedGround = isOnGround ? Time.time : lastTimeTouchedGround;
         hitWallLeft = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
             , capsuleCollider.direction, 0, Vector2.left, 0.1f, ~playerLayer);
         hitWallRight = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)

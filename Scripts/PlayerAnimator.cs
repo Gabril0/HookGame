@@ -29,16 +29,16 @@ public class PlayerAnimator : MonoBehaviour
         {
             sprite.flipX = true;
         }
-        animator.SetBool("IsHooking",controller.playerHooked);
+        animator.SetBool("isRolling",controller.isRolling);
 
-        spinningShadow.SetActive(controller.playerHooked);
+        spinningShadow.SetActive(controller.isRolling);
 
         if (controller.hittedHook)
         {
             rotationAmmount = -rb.velocity.x;
             transform.Rotate(Vector3.forward, rotationAmmount);
         }
-        if(!controller.playerHooked) {
+        if(!controller.isRolling) {
             transform.rotation = Quaternion.identity;
         }
     }

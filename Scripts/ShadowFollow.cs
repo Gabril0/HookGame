@@ -13,10 +13,12 @@ public class ShadowFollow : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         transform.rotation = Quaternion.identity;
-        render.enabled = playerController.playerHooked ? true : false;
-        
+
+        render.enabled = !playerController.isRolling ? false : true;
+
+
     }
 }

@@ -10,8 +10,11 @@ public class PlayerController : MonoBehaviour
 {
     private float horizontalMovement;
     private float verticalMovement;
-    private Vector2 tempVelocity;
+    public Vector2 tempVelocity;
 
+    public bool canControl;
+
+    public bool isRolling;
 
     private Rigidbody2D rb;
 
@@ -73,11 +76,13 @@ public class PlayerController : MonoBehaviour
         eyeThrowAnimation.enabled = false;
 
         originalAcceleration = acceleration;
+
+        canControl = true;
     }
 
     void Update()
     {
-        InputRegister();
+        if (canControl) { InputRegister(); }
         CollisionCheck();
         Project();
     }
@@ -86,6 +91,7 @@ public class PlayerController : MonoBehaviour
     {
         Move();
         HookCheck();
+        RollCheck();
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
@@ -112,7 +118,7 @@ public class PlayerController : MonoBehaviour
         {
             tempVelocity.x = 0;
         }
-        if (isOnGround && !playerHooked)
+        if (isOnGround && !playerHooked && !isRolling)
         {
             tempVelocity.x += Mathf.Abs(tempVelocity.x) < maxSpeed ? horizontalMovement * acceleration : 0;
             tempVelocity.x += Mathf.Abs(tempVelocity.x) > 0 ? -tempVelocity.x / 10 : 0;
@@ -148,7 +154,6 @@ public class PlayerController : MonoBehaviour
 
             if (playerHooked)
             {
-                rb.freezeRotation = false;
                 
                 if (!hittedHook )
                 {
@@ -181,15 +186,13 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-
                 canPlayEyeThrowAnimation = true;
                 eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = false;
                 rb.gravityScale = originalGravity;
                 lineRenderer.enabled = false;
                 distanceJoint.enabled = false;
                 hittedHook = false;
-                rb.freezeRotation = true;
-                transform.rotation = Quaternion.Euler(0, 0, 0);
+                
                 if (eyeInstance != null)
                 {
                     Destroy(eyeInstance);
@@ -213,45 +216,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //private void EyeHook() {
-  
-    //    float angle = Mathf.Atan2(directionHooked.y, directionHooked.x) * Mathf.Rad2Deg;
-    //    if (!eyesHooked && playerHooked) {
-    //        GameObject eye = gameObject;
-    //        eyeHook = new GameObject();
-    //        GameObject[] newHook = new GameObject[hookSize];
-    //        if (!eyeHookStarted) {
-    //            eye = Instantiate(eyeEnd, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
-    //            eye.gameObject.transform.SetParent(eyeHook.transform);
-    //            eyeHookStarted = true;
-    //        }
-    //        for (int i = 0; i < hookSize; i++) {
-    //            newHook[i] = Instantiate(eyeHookSegment, transform.position, Quaternion.Euler(0f, 0f, angle - 90));
-    //            newHook[i].gameObject.transform.SetParent(eyeHook.transform);
-    //            HingeJoint2D hookJoint = newHook[i].GetComponent<HingeJoint2D>();
-    //            hookJoint.connectedBody = i == 0 ? eye.GetComponent<Rigidbody2D>(): newHook[i-1].GetComponent<Rigidbody2D>();
-    //        }
+    private void RollCheck() {
+        if (isRolling)
+        {
+            rb.freezeRotation = false;
 
-    //        eyeHook.AddComponent<ThrowEyeHook>();
-    //        eyeHook.GetComponent<ThrowEyeHook>().speed = 0.5f;
-    //        eyeHook.AddComponent<DistanceJoint2D>();
-    //        eyeHook.GetComponent<DistanceJoint2D>().connectedBody = rb;
-    //        eyeHook.GetComponent<DistanceJoint2D>().maxDistanceOnly = true;
-    //        eyeHook.GetComponent<DistanceJoint2D>().distance = 2;
-    //        eyeHook.AddComponent<CompositeCollider2D>();
-    //        eyeHook.GetComponent<CompositeCollider2D>().isTrigger = true;
-    //        eyesHooked = true;
-    //        eyeHookStarted = false;
-    //    }
-    //    if (eyeHook != null) {
-    //        if (eyeHook.GetComponent<ThrowEyeHook>().foundWall) {
-    //            HookCheck();
-    //        }
-    //    }
-
- 
-    //    //make it go back to the player in the else if it was active
-    //}
+        }
+        else {
+            rb.freezeRotation = true;
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        
+    }
 
     private void CollisionCheck() {
         isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)
@@ -266,7 +242,9 @@ public class PlayerController : MonoBehaviour
     private void InputRegister() {
         horizontalMovement = Input.GetAxis("Horizontal");
         verticalMovement = Input.GetAxis("Vertical");
-        playerHooked = Input.GetKey(KeyCode.Space);
+        playerHooked = Input.GetKey(KeyCode.Mouse0);
+        isRolling = Input.GetKey(KeyCode.Space);
+        if (playerHooked) isRolling = true;
 
     }
 }

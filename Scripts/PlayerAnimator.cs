@@ -24,10 +24,12 @@ public class PlayerAnimator : MonoBehaviour
         if (rb.velocityX > 0.1f)
         {
             sprite.flipX = false;
+            spinningShadow.transform.rotation = Quaternion.Euler(0,0,0);
         }
         else if (rb.velocityX < -0.1f)
         {
             sprite.flipX = true;
+            spinningShadow.transform.rotation = Quaternion.Euler(0, -180, 0);
         }
         animator.SetBool("isRolling",controller.isRolling);
 

@@ -170,19 +170,30 @@ public class PlayerController : MonoBehaviour
                     //tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
 
 
+                    
+
+                    if(hit.rigidbody == null){
+                    distanceJoint.connectedBody = null;
+                    distanceJoint.connectedAnchor = hitPoint;
                     lineRenderer.SetPosition(0, transform.position);
                     lineRenderer.SetPosition(1, hitPoint);
                     lineRenderer.enabled = true;
-                    distanceJoint.connectedAnchor = hitPoint;
+
+                }
+                    else{
+                        distanceJoint.connectedBody = hit.rigidbody;
+                        distanceJoint.connectedAnchor = hit.collider.bounds.center;
+                    lineRenderer.SetPosition(0, transform.position);
+                    lineRenderer.SetPosition(1, hit.collider.bounds.center);
+                    lineRenderer.enabled = true;
+                    eyeInstance.transform.position = hit.collider.bounds.center;
+                }
                     distanceJoint.enabled = true;
-
-
                     distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 ? distanceJoint.distance + 1 : distanceJoint.distance - 1;
                     distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 + 1 || distanceJoint.distance > maxRopeSize / 2 - 1 ? maxRopeSize / 2 : distanceJoint.distance;
                     distanceJoint.distance = distanceJoint.distance < 3 ? 3 : distanceJoint.distance;
 
-
-                }
+            }
             }
             else
             {
@@ -210,8 +221,16 @@ public class PlayerController : MonoBehaviour
             
             hitPoint = hit ? hit.point : Vector2.zero;
             if (canInstanceEye) { 
-                eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3(0, 0, -5), Quaternion.identity);
-                canInstanceEye = false;
+                if(hit.rigidbody == null){
+                    eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3(0, 0, -5), Quaternion.identity);
+                    canInstanceEye = false;
+                }
+                if (hit.rigidbody != null)
+                {
+                    eyeInstance = Instantiate(eyeEnd, hit.collider.bounds.center + new Vector3(0, 0, -5), Quaternion.identity);
+                    canInstanceEye = false;
+                }
+
             }
         }
     }

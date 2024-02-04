@@ -216,6 +216,7 @@ GameObject:
   - component: {fileID: 733878252}
   - component: {fileID: 733878254}
   - component: {fileID: 733878253}
+  - component: {fileID: 733878255}
   m_Layer: 0
   m_Name: Square
   m_TagString: Untagged
@@ -348,6 +349,33 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!50 &733878255
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 733878250}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!114 &1000413255 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3833110867878310431, guid: ca5f4a2c5715cc7438b020b119da6121, type: 3}
@@ -47173,6 +47201,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3334580284805535116, guid: 6a1c38e117c1e1e4f9b54f3244ba60a8, type: 3}
+      propertyPath: m_AutoConfigureDistance
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7092229298062060529, guid: 6a1c38e117c1e1e4f9b54f3244ba60a8, type: 3}
       propertyPath: m_RootOrder
       value: 5

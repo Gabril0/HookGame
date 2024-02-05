@@ -8,7 +8,7 @@ using UnityEngine.XR;
 
 public class PlayerController : MonoBehaviour
 {
-    private float horizontalMovement;
+    public float horizontalMovement;
     private float verticalMovement;
     public Vector2 tempVelocity;
 
@@ -179,15 +179,14 @@ public class PlayerController : MonoBehaviour
                     lineRenderer.SetPosition(1, hitPoint);
                     lineRenderer.enabled = true;
 
-                }
+                    }
                     else{
-                        distanceJoint.connectedBody = hit.rigidbody;
                         distanceJoint.connectedAnchor = hit.collider.bounds.center;
-                    lineRenderer.SetPosition(0, transform.position);
-                    lineRenderer.SetPosition(1, hit.collider.bounds.center);
-                    lineRenderer.enabled = true;
-                    eyeInstance.transform.position = hit.collider.bounds.center;
-                }
+                        lineRenderer.SetPosition(0, transform.position);
+                        lineRenderer.SetPosition(1, hit.collider.bounds.center);
+                        lineRenderer.enabled = true;
+                        eyeInstance.transform.position = hit.collider.bounds.center + new Vector3(0,0,-5);
+                    }
                     distanceJoint.enabled = true;
                     distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 ? distanceJoint.distance + 1 : distanceJoint.distance - 1;
                     distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 + 1 || distanceJoint.distance > maxRopeSize / 2 - 1 ? maxRopeSize / 2 : distanceJoint.distance;

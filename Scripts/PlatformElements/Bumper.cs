@@ -15,7 +15,7 @@ public class Bumper : MonoBehaviour
 
             controller.canControl = false;
             controller.horizontalMovement = -Mathf.Sign(playerRb.velocityX);
-            playerRb.velocity = new Vector2(-playerRb.velocity.x * BumpForce, playerRb.velocity.y);
+            playerRb.velocity = new Vector2(-playerRb.velocity.x * BumpForce, -playerRb.velocity.y * BumpForce);
             Invoke("EnablePlayerControl", 5f);
         }
     }

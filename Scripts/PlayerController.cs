@@ -89,9 +89,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate() // make the player shoot some rectangles an his eye at the end to simulate the rope when he doesnt hit anything
     {
-        Move();
+        if (canControl) Move();
         HookCheck();
         RollCheck();
+
+        Debug.Log(rb.velocity);
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }

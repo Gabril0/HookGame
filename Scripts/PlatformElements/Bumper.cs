@@ -4,23 +4,18 @@ using UnityEngine;
 
 public class Bumper : MonoBehaviour
 {
-    [SerializeField] float BumpForce;
-    private PlayerController controller;
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Player")) {
+        if (collision.collider.CompareTag("Player"))
+        {
             Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
-            controller = playerRb.GetComponent<PlayerController>();
+            PlayerController controller = collision.gameObject.GetComponent<PlayerController>();
 
-            controller.canControl = false;
-            controller.horizontalMovement = -Mathf.Sign(playerRb.velocityX);
-            playerRb.velocity = new Vector2(-playerRb.velocity.x * BumpForce, -playerRb.velocity.y * BumpForce);
-            Invoke("EnablePlayerControl", 5f);
+            Vector2 direction = new Vector2(Mathf.Sign(playerRb.velocityX), Mathf.Sign(playerRb.velocityY));
+
+            controller.tempVelocity = direction * 20;
         }
     }
 
-    private void EnablePlayerControl() {
-        controller.canControl = true;
-    }
+
 }

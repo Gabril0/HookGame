@@ -46659,9 +46659,17 @@ PrefabInstance:
       propertyPath: BumpForce
       value: 1.25
       objectReference: {fileID: 0}
+    - target: {fileID: 812862509787698104, guid: 1454ca107feb020448ee38917fe6df86, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2884463529802371541, guid: 1454ca107feb020448ee38917fe6df86, type: 3}
       propertyPath: m_Name
       value: Bumper
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955040399188521659, guid: 1454ca107feb020448ee38917fe6df86, type: 3}
+      propertyPath: m_Material
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7034020474042102561, guid: 1454ca107feb020448ee38917fe6df86, type: 3}
       propertyPath: m_RootOrder

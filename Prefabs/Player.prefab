@@ -75,7 +75,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1782411067
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -6007857137893288414, guid: ef68aa12e9a9b054ea543ab0524879c2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -424,7 +424,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1782411067
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -513,6 +513,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28346ee3ad42ee444a67b49806bf5a39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  horizontalMovement: 0
   tempVelocity: {x: 0, y: 0}
   canControl: 0
   isRolling: 0
@@ -546,7 +547,7 @@ DistanceJoint2D:
   m_AutoConfigureConnectedAnchor: 0
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
-  m_AutoConfigureDistance: 1
+  m_AutoConfigureDistance: 0
   m_Distance: 1.65
   m_MaxDistanceOnly: 1
 --- !u!120 &6493943409361554542
@@ -832,7 +833,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1782411067
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -5186911405073746198, guid: 85804f8c67a42a04c9375bf25e5ef55a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

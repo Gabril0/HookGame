@@ -93,8 +93,6 @@ public class PlayerController : MonoBehaviour
         HookCheck();
         RollCheck();
 
-        Debug.Log(rb.velocity);
-
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
 
@@ -113,6 +111,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move() {
         acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
+        if (isOnGround) { tempVelocity.y = 0; }
         if (tempVelocity.x > 0 && hitWallRight && ( Time.time - lastTimeTouchedGround > 0.5f)) {
             tempVelocity.x = 0;
         }

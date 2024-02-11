@@ -1,22 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] Goal goal;
+    private PlayerController playerController;
     private float timer;
 
     private bool isPaused = false;
-    // Start is called before the first frame update
     void Start()
     {
         timer = 0;
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!isPaused && !goal.isBeaten) {
@@ -25,6 +27,14 @@ public class GameManager : MonoBehaviour
         timerText.text = timer.ToString();
         if (goal.isBeaten) {
             Invoke("NextStage", 0.2f);
+        }
+        if (!playerController.isAlive) {
+            Debug.Log("Press Space to restart");
+            if (Input.GetKeyDown(KeyCode.Space)) {
+                int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+                SceneManager.LoadScene(currentSceneIndex);
+            };
+
         }
     }
     private void NextStage() {

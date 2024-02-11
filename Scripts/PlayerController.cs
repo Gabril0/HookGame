@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public Vector2 tempVelocity;
 
     public bool canControl;
+    public bool isAlive = true;
 
     public bool isRolling;
 
@@ -82,16 +83,29 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (canControl) { InputRegister(); }
-        CollisionCheck();
-        Project();
+        if (isAlive)
+        {
+            if (canControl) { InputRegister(); }
+            CollisionCheck();
+            Project();
+        }
+        else {
+            projection.enabled = false;
+            horizontalMovement = 0;
+            playerHooked = false;
+            tempVelocity = Vector3.zero;
+        }
+        
     }
 
-    private void FixedUpdate() // make the player shoot some rectangles an his eye at the end to simulate the rope when he doesnt hit anything
+    private void FixedUpdate()
     {
-        if (canControl) Move();
-        HookCheck();
-        RollCheck();
+        if (isAlive) {
+            if (canControl) Move();
+            HookCheck();
+            RollCheck();
+        }
+        
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }

@@ -13,6 +13,7 @@ public class TempBlock : MonoBehaviour
     {
         col = GetComponent<BoxCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {

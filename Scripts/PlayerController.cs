@@ -147,6 +147,9 @@ public class PlayerController : MonoBehaviour
             {
                 speedOnHook = -speedOnHook;
             }
+            if (Mathf.Sign(tempVelocity.x) != (int)horizontalMovement && horizontalMovement != 0) {
+                speedOnHook += horizontalMovement * accelerationOnRope/50;
+            }
             speedOnHook += Mathf.Abs(speedOnHook) >= 0 && Mathf.Abs(speedOnHook) <= 1 ? horizontalMovement * accelerationOnRope : 0;
             tempVelocity.x = speedOnHook;
         }

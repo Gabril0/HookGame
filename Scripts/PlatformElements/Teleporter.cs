@@ -1,14 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class Teleporter : MonoBehaviour
 {
     [SerializeField] Teleporter otherTeleporter;
+    public SpriteRenderer spriteRenderer;
+    [SerializeField] private bool spriteIsBlue;
+    [SerializeField] private Sprite bluePortal;
+    [SerializeField] private Sprite orangePortal;
+    [SerializeField] private Light2D lightComponent;
     public bool canCollide = true;
     void Start()
     {
-        
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = spriteIsBlue ? bluePortal : orangePortal;
+        otherTeleporter.spriteRenderer.sprite = spriteIsBlue ? orangePortal : bluePortal;
+        lightComponent.color = spriteIsBlue ? Color.blue: Color.yellow ;
     }
 
 

@@ -32,7 +32,6 @@ public class PlayerAnimator : MonoBehaviour
             spinningShadow.transform.rotation = Quaternion.Euler(0, -180, 0);
         }
         animator.SetBool("isRolling",controller.isRolling);
-
         spinningShadow.SetActive(controller.isRolling);
 
         if (controller.hittedHook)

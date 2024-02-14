@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour
             playerHooked = false;
             tempVelocity = Vector3.zero;
         }
-        
+
     }
 
     private void FixedUpdate()
@@ -105,7 +105,7 @@ public class PlayerController : MonoBehaviour
             HookCheck();
             RollCheck();
         }
-        
+
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
@@ -126,10 +126,10 @@ public class PlayerController : MonoBehaviour
     private void Move() {
         acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
         if (isOnGround) { tempVelocity.y = 0; }
-        if (tempVelocity.x > 0 && hitWallRight && ( Time.time - lastTimeTouchedGround > 0.5f)) {
+        if (tempVelocity.x > 0 && hitWallRight && (Time.time - lastTimeTouchedGround > 0.5f)) {
             tempVelocity.x = 0;
         }
-        if (tempVelocity.x < 0 && hitWallLeft && ( Time.time - lastTimeTouchedGround > 0.5f))
+        if (tempVelocity.x < 0 && hitWallLeft && (Time.time - lastTimeTouchedGround > 0.5f))
         {
             tempVelocity.x = 0;
         }
@@ -138,17 +138,17 @@ public class PlayerController : MonoBehaviour
             tempVelocity.x += Mathf.Abs(tempVelocity.x) < maxSpeed ? horizontalMovement * acceleration : 0;
             tempVelocity.x += Mathf.Abs(tempVelocity.x) > 0 ? -tempVelocity.x / 10 : 0;
 
-            
+
         }
         else if (hittedHook) {
-            speedOnHook += Mathf.Abs(speedOnHook) > 0? -Mathf.Sign(speedOnHook) * accelerationOnRope/100: speedOnHook;
-            speedOnHook += Mathf.Abs(speedOnHook) < maxSpeedOnRope? horizontalMovement * accelerationOnRope / 50: 0;
+            speedOnHook += Mathf.Abs(speedOnHook) > 0 ? -Mathf.Sign(speedOnHook) * accelerationOnRope / 100 : speedOnHook;
+            speedOnHook += Mathf.Abs(speedOnHook) < maxSpeedOnRope ? horizontalMovement * accelerationOnRope / 50 : 0;
             if (rb.velocity.magnitude < 0.75f)
             {
                 speedOnHook = -speedOnHook;
             }
             if (Mathf.Sign(tempVelocity.x) != (int)horizontalMovement && horizontalMovement != 0) {
-                speedOnHook += horizontalMovement * accelerationOnRope/50;
+                speedOnHook += horizontalMovement * accelerationOnRope / 50;
             }
             speedOnHook += Mathf.Abs(speedOnHook) >= 0 && Mathf.Abs(speedOnHook) <= 1 ? horizontalMovement * accelerationOnRope : 0;
             tempVelocity.x = speedOnHook;
@@ -162,7 +162,7 @@ public class PlayerController : MonoBehaviour
         eyeThrowAnimation.transform.parent = null; // making this because of a bug when rotating
         eyeThrowAnimation.transform.position = transform.position;
         eyeThrowAnimation.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
-        if (canPlayEyeThrowAnimation && playerHooked) { 
+        if (canPlayEyeThrowAnimation && playerHooked) {
             eyeThrowAnimation.enabled = true;
             eyeThrowAnimation.Play("EyeThrow");
             eyeThrowAnimation.speed = 1;
@@ -170,63 +170,63 @@ public class PlayerController : MonoBehaviour
             eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = true;
         }
 
-            if (playerHooked)
+        if (playerHooked)
+        {
+
+            if (!hittedHook)
             {
-                
-                if (!hittedHook )
-                {
-                    directionHooked = new Vector2(horizontalMovement, verticalMovement);
-                    hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
-                    speedOnHook = tempVelocity.x;
-                    Invoke("HookActivation",eyeThrowAnimation.GetCurrentAnimatorStateInfo(0).length);
-                    
-                }
-                else
+                directionHooked = new Vector2(horizontalMovement, verticalMovement);
+                hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
+                speedOnHook = tempVelocity.x;
+                Invoke("HookActivation", eyeThrowAnimation.GetCurrentAnimatorStateInfo(0).length);
 
-                {
-                    if (!isOnGround) rb.gravityScale = ropeGravity * 2;
-                    //tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
+            }
+            else
+
+            {
+                if (!isOnGround) rb.gravityScale = ropeGravity * 2;
+                //tempVelocity.y = verticalMovement < 0 ? verticalMovement * acceleration : tempVelocity.y;
 
 
-                    
 
-                    if(hit.rigidbody == null){
+
+                if (hit.rigidbody == null) {
                     distanceJoint.connectedBody = null;
                     distanceJoint.connectedAnchor = hitPoint;
                     lineRenderer.SetPosition(0, transform.position);
                     lineRenderer.SetPosition(1, hitPoint);
                     lineRenderer.enabled = true;
 
-                    }
-                    else{
-                        distanceJoint.connectedAnchor = hit.collider.bounds.center;
-                        lineRenderer.SetPosition(0, transform.position);
-                        lineRenderer.SetPosition(1, hit.collider.bounds.center);
-                        lineRenderer.enabled = true;
-                        eyeInstance.transform.position = hit.collider.bounds.center + new Vector3(0,0,-5);
-                    }
-                    distanceJoint.enabled = true;
-                    distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 ? distanceJoint.distance + 1 : distanceJoint.distance - 1;
-                    distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 + 1 || distanceJoint.distance > maxRopeSize / 2 - 1 ? maxRopeSize / 2 : distanceJoint.distance;
-                    distanceJoint.distance = distanceJoint.distance < 3 ? 3 : distanceJoint.distance;
+                }
+                else {
+                    distanceJoint.connectedAnchor = hit.collider.bounds.center;
+                    lineRenderer.SetPosition(0, transform.position);
+                    lineRenderer.SetPosition(1, hit.collider.bounds.center);
+                    lineRenderer.enabled = true;
+                    eyeInstance.transform.position = hit.collider.bounds.center + new Vector3(0, 0, -5);
+                }
+                distanceJoint.enabled = true;
+                distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 ? distanceJoint.distance + 1 : distanceJoint.distance - 1;
+                distanceJoint.distance = distanceJoint.distance < maxRopeSize / 2 + 1 || distanceJoint.distance > maxRopeSize / 2 - 1 ? maxRopeSize / 2 : distanceJoint.distance;
+                distanceJoint.distance = distanceJoint.distance < 3 ? 3 : distanceJoint.distance;
 
             }
-            }
-            else
+        }
+        else
+        {
+            canPlayEyeThrowAnimation = true;
+            eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = false;
+            rb.gravityScale = originalGravity;
+            lineRenderer.enabled = false;
+            distanceJoint.enabled = false;
+            hittedHook = false;
+
+            if (eyeInstance != null)
             {
-                canPlayEyeThrowAnimation = true;
-                eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = false;
-                rb.gravityScale = originalGravity;
-                lineRenderer.enabled = false;
-                distanceJoint.enabled = false;
-                hittedHook = false;
-                
-                if (eyeInstance != null)
-                {
-                    Destroy(eyeInstance);
-                    canInstanceEye = true;
-                }
+                Destroy(eyeInstance);
+                canInstanceEye = true;
             }
+        }
     }
     private void HookActivation() {
         hittedHook = hit;
@@ -235,10 +235,10 @@ public class PlayerController : MonoBehaviour
             eyeThrowAnimation.enabled = false;
             canPlayEyeThrowAnimation = false;
             eyeThrowAnimation.GetComponent<SpriteRenderer>().enabled = false;
-            
+
             hitPoint = hit ? hit.point : Vector2.zero;
-            if (canInstanceEye) { 
-                if(hit.rigidbody == null){
+            if (canInstanceEye) {
+                if (hit.rigidbody == null) {
                     eyeInstance = Instantiate(eyeEnd, (Vector3)hitPoint + new Vector3(0, 0, -5), Quaternion.identity);
                     canInstanceEye = false;
                 }
@@ -262,12 +262,12 @@ public class PlayerController : MonoBehaviour
             rb.freezeRotation = true;
             transform.rotation = Quaternion.Euler(0, 0, 0);
         }
-        
+
     }
 
     private void CollisionCheck() {
         isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)
-            , capsuleCollider.direction, 0,Vector2.down, 0.1f, ~playerLayer);
+            , capsuleCollider.direction, 0, Vector2.down, 0.1f, ~playerLayer);
         lastTimeTouchedGround = isOnGround ? Time.time : lastTimeTouchedGround;
         hitWallLeft = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
             , capsuleCollider.direction, 0, Vector2.left, 0.1f, ~playerLayer);
@@ -283,4 +283,5 @@ public class PlayerController : MonoBehaviour
         if (playerHooked) isRolling = true;
 
     }
+
 }

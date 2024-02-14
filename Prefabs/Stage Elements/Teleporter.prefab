@@ -117,7 +117,7 @@ Transform:
   m_Children:
   - {fileID: 4695186129673847244}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4340070184323311135
 SpriteRenderer:
@@ -231,7 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   otherTeleporter: {fileID: 0}
   spriteRenderer: {fileID: 4340070184323311135}
-  spriteIsBlue: 0
+  spriteIsBlue: 1
   bluePortal: {fileID: 2900573818660442195, guid: 1403b0bc6bf50af44985850ae8e3fba8, type: 3}
   orangePortal: {fileID: -698595030246881887, guid: 556b1b21063565c42b47f8fa54428029, type: 3}
   lightComponent: {fileID: 717246429100547702}

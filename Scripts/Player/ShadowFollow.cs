@@ -17,8 +17,6 @@ public class ShadowFollow : MonoBehaviour
     {
         transform.rotation = Quaternion.identity;
 
-        render.enabled = !playerController.isRolling ? false : true;
-
 
     }
 }

@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     public bool canControl;
     public bool isAlive = true;
+    private bool isFliped = false;
 
     public bool isRolling;
 
@@ -28,20 +29,20 @@ public class PlayerController : MonoBehaviour
 
     private float originalGravity;
     private float ropeGravity;
+    private float stopTime;
+    private float stopCooldown = 1;
 
-    private bool isOnGround = false;
+    public bool isOnGround = false;
     private CapsuleCollider2D capsuleCollider;
 
     private float originalAcceleration;
     private float speedOnHook;
 
-    [SerializeField] SpriteRenderer projection;
-    private UnityEngine.Color projectionYellow = new UnityEngine.Color(255f / 255f, 255f / 255f, 13f / 255f, 1f);
-    private UnityEngine.Color projectionGray = new UnityEngine.Color(200f / 255f, 200f / 255f, 200f / 255f, 0.5f);
 
 
-    [SerializeField] private float maxRopeSize;
-    [SerializeField] private LayerMask playerLayer;
+
+    [SerializeField] public float maxRopeSize;
+    [SerializeField] public LayerMask playerLayer;
     [SerializeField] private float acceleration;
     [SerializeField] private float accelerationOnRope;
     [SerializeField] private float maxSpeed;
@@ -72,7 +73,8 @@ public class PlayerController : MonoBehaviour
         originalGravity = rb.gravityScale;
         ropeGravity = 10 * originalGravity;
         capsuleCollider = GetComponent<CapsuleCollider2D>();
-        projection.enabled = true;
+
+        stopTime = 0;
 
         eyeThrowAnimation.enabled = false;
 
@@ -87,10 +89,9 @@ public class PlayerController : MonoBehaviour
         {
             if (canControl) { InputRegister(); }
             CollisionCheck();
-            Project();
+
         }
         else {
-            projection.enabled = false;
             horizontalMovement = 0;
             playerHooked = false;
             tempVelocity = Vector3.zero;
@@ -98,10 +99,12 @@ public class PlayerController : MonoBehaviour
 
     }
 
+
     private void FixedUpdate()
     {
         if (isAlive) {
             if (canControl) Move();
+            SideCheck();
             HookCheck();
             RollCheck();
         }
@@ -110,18 +113,19 @@ public class PlayerController : MonoBehaviour
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
     }
 
-    private void Project()
+    private void SideCheck()
     {
-        Vector2 direction = new Vector2(horizontalMovement, verticalMovement).normalized;
-
-        float distanceFromPlayer = 4f;
-        projection.transform.position = transform.position + new Vector3(direction.x * distanceFromPlayer, direction.y * distanceFromPlayer, 0f);
-        projection.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
-
-        projection.color = Physics2D.Raycast(transform.position, direction, maxRopeSize, ~playerLayer) ? projectionYellow : projectionGray;
-        projection.enabled = (horizontalMovement == 0 && verticalMovement == 0) ? false : true;
+        if (tempVelocity.x < 0 && !isFliped)
+        {
+            transform.localScale = new Vector3(-1f, 1f, 1f);
+            isFliped = true;
+        }
+        else if (tempVelocity.x > 0 && isFliped)
+        {
+            transform.localScale = new Vector3(1f, 1f, 1f);
+            isFliped = false;
+        }
     }
-
 
     private void Move() {
         acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
@@ -141,14 +145,28 @@ public class PlayerController : MonoBehaviour
 
         }
         else if (hittedHook) {
+
             speedOnHook += Mathf.Abs(speedOnHook) > 0 ? -Mathf.Sign(speedOnHook) * accelerationOnRope / 100 : speedOnHook;
             speedOnHook += Mathf.Abs(speedOnHook) < maxSpeedOnRope ? horizontalMovement * accelerationOnRope / 50 : 0;
-            if (rb.velocity.magnitude < 0.75f)
+            if (Input.GetAxisRaw("Horizontal") == 0)
             {
-                speedOnHook = -speedOnHook;
+                if (stopTime <= stopCooldown)
+                {
+                    stopTime += Time.deltaTime;
+                }
+                else
+                {
+                    speedOnHook = Mathf.Abs(speedOnHook) > 0 ? speedOnHook / 25 : 0;
+                    if (Mathf.Abs(speedOnHook) > 0 && Mathf.Abs(speedOnHook) < 1) speedOnHook = 0;
+                }
+
             }
-            if (Mathf.Sign(tempVelocity.x) != (int)horizontalMovement && horizontalMovement != 0) {
-                speedOnHook += horizontalMovement * accelerationOnRope / 50;
+            else {
+                stopTime = 0;
+            }
+            if (Mathf.Sign(speedOnHook) != Input.GetAxisRaw("Horizontal") && horizontalMovement != 0) {
+                speedOnHook *= -1;
+                speedOnHook += horizontalMovement * accelerationOnRope / 150;
             }
             speedOnHook += Mathf.Abs(speedOnHook) >= 0 && Mathf.Abs(speedOnHook) <= 1 ? horizontalMovement * accelerationOnRope : 0;
             tempVelocity.x = speedOnHook;
@@ -157,8 +175,14 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public float getMagnitude() {
+        return rb.velocity.magnitude;
+    }
+
     private void HookCheck() {
-        Vector2 direction = new Vector2(horizontalMovement, verticalMovement).normalized;
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 playerPosition = new Vector2(transform.position.x, transform.position.y);
+        Vector2 direction = (mousePosition - playerPosition).normalized;
         eyeThrowAnimation.transform.parent = null; // making this because of a bug when rotating
         eyeThrowAnimation.transform.position = transform.position;
         eyeThrowAnimation.gameObject.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
@@ -175,7 +199,7 @@ public class PlayerController : MonoBehaviour
 
             if (!hittedHook)
             {
-                directionHooked = new Vector2(horizontalMovement, verticalMovement);
+                directionHooked = (mousePosition - playerPosition).normalized; ;
                 hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
                 speedOnHook = tempVelocity.x;
                 Invoke("HookActivation", eyeThrowAnimation.GetCurrentAnimatorStateInfo(0).length);
@@ -280,6 +304,10 @@ public class PlayerController : MonoBehaviour
         verticalMovement = Input.GetAxis("Vertical");
         playerHooked = Input.GetKey(KeyCode.Mouse0);
         isRolling = Input.GetKey(KeyCode.Space);
+        if (!isOnGround)
+        {
+            isRolling = true;
+        }
         if (playerHooked) isRolling = true;
 
     }

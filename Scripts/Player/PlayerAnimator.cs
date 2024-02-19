@@ -9,7 +9,6 @@ public class PlayerAnimator : MonoBehaviour
     private PlayerController controller;
     [SerializeField] private Animator animator;
     [SerializeField] private GameObject spinningShadow;
-    private float rotationAmmount = 0;
     void Start()
     {
         rb = GetComponentInParent<Rigidbody2D>();
@@ -18,29 +17,21 @@ public class PlayerAnimator : MonoBehaviour
         spinningShadow.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
-        if (rb.velocityX > 0.1f)
-        {
-            sprite.flipX = false;
-            spinningShadow.transform.rotation = Quaternion.Euler(0,0,0);
-        }
-        else if (rb.velocityX < -0.1f)
-        {
-            sprite.flipX = true;
-            spinningShadow.transform.rotation = Quaternion.Euler(0, -180, 0);
-        }
         animator.SetBool("isRolling",controller.isRolling);
-        spinningShadow.SetActive(controller.isRolling);
-
-        if (controller.hittedHook)
+        if (!controller.isRolling)
         {
-            rotationAmmount = -rb.velocity.x;
-            transform.Rotate(Vector3.forward, rotationAmmount);
+            Invoke("ShadowDelay", 0.15f);
         }
-        if(!controller.isRolling) {
+        else {
+            spinningShadow.SetActive(true);
+        }
+        if (!controller.isRolling) {
             transform.rotation = Quaternion.identity;
         }
+    }
+    private void ShadowDelay() {
+        spinningShadow.SetActive(false);
     }
 }

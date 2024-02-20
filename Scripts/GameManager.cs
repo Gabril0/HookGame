@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using TMPro;
 using UnityEditor.SearchService;
 using UnityEngine;
@@ -13,12 +14,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] Goal goal;
     public bool displayResults {get;private  set; }
 
-    public bool isPaused { get; private set;  }
+    public bool isPaused;
     void Start()
     {
         displayResults = false;
-        isPaused = false;
+        isPaused = true;
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
+        playerController.canControl = false;
     }
 
     void Update()
@@ -30,17 +32,21 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public int GetStageNumber() {
+        string name = SceneManager.GetActiveScene().name;
+        string fixedName = name.Replace("Level", "");
+        return int.Parse(fixedName);
+    }
+
     public void ReloadScene() {
         Time.timeScale = 1;
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentSceneIndex);
     }
     private void EndStage() {
-        Time.timeScale = 0f;
         GameObject.Find("Player").GetComponent<PlayerController>().canControl = false;
         displayResults = true;
     }
-
     public void NextStage() {
         
     }

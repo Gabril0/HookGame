@@ -79,8 +79,6 @@ public class PlayerController : MonoBehaviour
         eyeThrowAnimation.enabled = false;
 
         originalAcceleration = acceleration;
-
-        canControl = true;
     }
 
     void Update()

@@ -13,8 +13,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject restart;
     [SerializeField] GameObject result;
     [SerializeField] GameObject turnArrow;
+    [SerializeField] TextMeshProUGUI countDownText;
     private PlayerController playerController;
     private float timer;
+    private DeveloperTime developerTime;
 
     private bool magnitudeReached;
     private float lastMagnitude;
@@ -27,7 +29,9 @@ public class UIManager : MonoBehaviour
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
         magnitudeReached = false;
         lastMagnitude = 0;
-
+        developerTime = ScriptableObject.CreateInstance<DeveloperTime>();
+        developerTime.InitializeStageTime();
+        StartCoroutine(CountDown());
         
     }
 
@@ -59,11 +63,28 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private IEnumerator CountDown() {
+        gameManager.isPaused = true;
+        playerController.canControl = false;
+        countDownText.gameObject.SetActive(true);
+        countDownText.text = "3";
+        yield return new WaitForSeconds(1);
+        countDownText.text = "2";
+        yield return new WaitForSeconds(1);
+        countDownText.text = "1";
+        yield return new WaitForSeconds(1);
+        playerController.canControl = true;
+        countDownText.text = "Go!";
+        gameManager.isPaused = false;
+        yield return new WaitForSeconds(1);
+        countDownText.gameObject.SetActive(false);
+    }
+
     private void CheckResults() {
         bool isOver = gameManager.displayResults ? true: false;
         result.SetActive(isOver);
         if (result.activeSelf) {
-            result.transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Developer Time: 00:19:00" + "<br>" + "Your Time: " + TimeFormat(timer);
+            result.transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Developer Time: " + TimeFormat(developerTime.stageTime[gameManager.GetStageNumber()]) + "<br>" + "Your Time: " + TimeFormat(timer);
         }
     }
 

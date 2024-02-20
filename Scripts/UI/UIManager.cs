@@ -45,7 +45,7 @@ public class UIManager : MonoBehaviour
         {
             timer += Time.deltaTime;
         }
-        timerText.text = timer.ToString();
+        timerText.text = TimeFormat(timer);
         
     }
 
@@ -63,7 +63,7 @@ public class UIManager : MonoBehaviour
         bool isOver = gameManager.displayResults ? true: false;
         result.SetActive(isOver);
         if (result.activeSelf) {
-            result.transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Developer Time: 00:19:00" + "<br>" + "Your Time: " + timer;
+            result.transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Developer Time: 00:19:00" + "<br>" + "Your Time: " + TimeFormat(timer);
         }
     }
 
@@ -71,10 +71,8 @@ public class UIManager : MonoBehaviour
         
         turnArrow.SetActive(playerController.hittedHook);
         if (playerController.hittedHook){
-            turnArrow.transform.localScale = playerController.tempVelocity.x >= 0 ?
-            new Vector3(turnArrow.transform.localScale.x * 1, turnArrow.transform.localScale.y, turnArrow.transform.localScale.z) :
-            new Vector3(turnArrow.transform.localScale.x * -1, turnArrow.transform.localScale.y, turnArrow.transform.localScale.z);
-            ;
+
+            turnArrow.transform.localScale = new Vector3(-Mathf.Sign(playerController.tempVelocity.x) * Mathf.Abs(turnArrow.transform.localScale.x), turnArrow.transform.localScale.y, turnArrow.transform.localScale.z);
             float number = playerController.getMagnitude();
             if(!magnitudeReached)magnitudeReached = Mathf.Abs(number) <= 1f;
             turnArrow.GetComponent<Image>().enabled = magnitudeReached;
@@ -89,6 +87,18 @@ public class UIManager : MonoBehaviour
         
 
 
+    }
+
+    private string TimeFormat(float time) {
+        string resultingTime;
+        int minutes = (int)time / 60;
+        int seconds = (int)time % 60;
+        int ms = (int)(time * 100) % 100;
+        string min = minutes < 10? "0" + minutes: ""+minutes;
+        string sec = seconds < 10 ? "0" + seconds : "" + seconds;
+        string msText = ms < 10 ? "0" + ms : "" + ms;
+        resultingTime = min + ":" + sec + ":" + msText;
+        return resultingTime;
     }
     public void Restart() {
         gameManager.ReloadScene();

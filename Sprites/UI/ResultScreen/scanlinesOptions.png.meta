@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c0dfc4c93514dc248869030ba693e921
+guid: 3701fc335f4f0ea4691d2feefa4d80a7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5020818410539901491
-    second: resultScreen_0
+      213: -8224597880900670959
+    second: scanlinesOptions_0
   externalObjects: {}
   serializedVersion: 12
   mipmaps:
@@ -98,22 +98,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: resultScreen_0
+      name: scanlinesOptions_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 200
-        height: 100
+        x: 133
+        y: 13
+        width: 60
+        height: 67
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dcd170ec148725ab0800000000000000
-      internalID: -5020818410539901491
+      spriteID: 11a2c789dcb5cdd80800000000000000
+      internalID: -8224597880900670959
       vertices: []
       indices: 
       edges: []
@@ -121,7 +121,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 279fd67f4aa2afc4188cd2cc2ab79f05
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -129,7 +129,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      resultScreen_0: -5020818410539901491
+      scanlinesOptions_0: -8224597880900670959
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

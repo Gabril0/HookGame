@@ -21,6 +21,7 @@ public class UIManager : MonoBehaviour
     private bool magnitudeReached;
     private float lastMagnitude;
 
+
     private GameManager gameManager;
     void Start()
     {
@@ -84,10 +85,49 @@ public class UIManager : MonoBehaviour
         bool isOver = gameManager.displayResults ? true: false;
         result.SetActive(isOver);
         if (result.activeSelf) {
-            result.transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Developer Time: " + TimeFormat(developerTime.stageTime[gameManager.GetStageNumber()]) + "<br>" + "Your Time: " + TimeFormat(timer);
+            CalculateMedalsTime();
+            int stageNumber = gameManager.GetStageNumber();
+            string stageKey = stageNumber.ToString();
+
+            if (PlayerPrefs.HasKey(stageKey))
+            {
+                float bestTime = PlayerPrefs.GetFloat(stageKey);
+
+                if (bestTime == 0 || timer < bestTime)
+                {
+                    PlayerPrefs.SetFloat(stageKey, timer);
+                }
+            }
+            else
+            {
+                PlayerPrefs.SetFloat(stageKey, timer);
+            }
+            result.transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Time: " + TimeFormat(PlayerPrefs.GetFloat("" + stageNumber)) + "<br>" + "Your Time: " + TimeFormat(timer);
         }
     }
 
+    private void CalculateMedalsTime() {
+        GameObject medals = result.transform.Find("Medals").gameObject;
+        GameObject bronzeMedal = medals.transform.Find("BronzeMedal").gameObject;
+        GameObject silverMedal = medals.transform.Find("SilverMedal").gameObject;
+        GameObject goldMedal = medals.transform.Find("GoldMedal").gameObject;
+        GameObject developerMedal = medals.transform.Find("DeveloperMedal").gameObject;
+        float devTime = developerTime.stageTime[gameManager.GetStageNumber()];
+
+        float bronzeTime = devTime * 6;
+        float silverTime = devTime * 2;
+        float goldTime = devTime * 1.5f;
+
+        bronzeMedal.SetActive(timer < bronzeTime);
+        silverMedal.SetActive(timer < silverTime);
+        goldMedal.SetActive(timer < goldTime);
+        developerMedal.SetActive(timer < devTime);
+
+        bronzeMedal.GetComponentInChildren<TextMeshProUGUI>().text = TimeFormat(bronzeTime);
+        silverMedal.GetComponentInChildren<TextMeshProUGUI>().text = TimeFormat(silverTime);
+        goldMedal.GetComponentInChildren<TextMeshProUGUI>().text = TimeFormat(goldTime);
+        developerMedal.GetComponentInChildren<TextMeshProUGUI>().text = TimeFormat(devTime);
+    }
     private void TurnArrow() {
         
         turnArrow.SetActive(playerController.hittedHook);

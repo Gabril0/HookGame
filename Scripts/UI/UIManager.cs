@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject result;
     [SerializeField] GameObject turnArrow;
     [SerializeField] TextMeshProUGUI countDownText;
+    [SerializeField] GameObject pauseScreen;
     private PlayerController playerController;
     private float timer;
     private DeveloperTime developerTime;
@@ -33,7 +34,7 @@ public class UIManager : MonoBehaviour
         developerTime = ScriptableObject.CreateInstance<DeveloperTime>();
         developerTime.InitializeStageTime();
         StartCoroutine(CountDown());
-        
+
     }
 
     // Update is called once per frame
@@ -43,6 +44,7 @@ public class UIManager : MonoBehaviour
         CheckRestart();
         CheckResults();
         TurnArrow();
+        CheckPause();
     }
     private void TimerTick()
     {
@@ -51,6 +53,19 @@ public class UIManager : MonoBehaviour
             timer += Time.deltaTime;
         }
         timerText.text = TimeFormat(timer);
+
+    }
+
+    private void CheckPause() {
+        if (Input.GetKeyDown(KeyCode.Escape) && !gameManager.isPaused && !goal.isBeaten) {
+            Time.timeScale = 0f;
+            pauseScreen.SetActive(true);
+        }
+
+    }
+    public void UnPause(){
+        pauseScreen.SetActive(false);
+        StartCoroutine(CountDown());
         
     }
 
@@ -69,15 +84,16 @@ public class UIManager : MonoBehaviour
         playerController.canControl = false;
         countDownText.gameObject.SetActive(true);
         countDownText.text = "3";
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSecondsRealtime(1);
         countDownText.text = "2";
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSecondsRealtime(1);
         countDownText.text = "1";
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSecondsRealtime(1);
+        Time.timeScale = 1;
         playerController.canControl = true;
         countDownText.text = "Go!";
         gameManager.isPaused = false;
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSecondsRealtime(1);
         countDownText.gameObject.SetActive(false);
     }
 
@@ -102,12 +118,13 @@ public class UIManager : MonoBehaviour
             {
                 PlayerPrefs.SetFloat(stageKey, timer);
             }
-            result.transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Time: " + TimeFormat(PlayerPrefs.GetFloat("" + stageNumber)) + "<br>" + "Your Time: " + TimeFormat(timer);
+            result.transform.Find("SlugOS").transform.Find("ResultText").GetComponent<TextMeshProUGUI>().text = "Best Time: " + TimeFormat(PlayerPrefs.GetFloat("" + stageNumber)) + "<br>" + "Your Time: " + TimeFormat(timer);
         }
     }
 
     private void CalculateMedalsTime() {
-        GameObject medals = result.transform.Find("Medals").gameObject;
+        GameObject slugOS = result.transform.Find("SlugOS").gameObject;
+        GameObject medals = slugOS.transform.Find("Medals").gameObject;
         GameObject bronzeMedal = medals.transform.Find("BronzeMedal").gameObject;
         GameObject silverMedal = medals.transform.Find("SilverMedal").gameObject;
         GameObject goldMedal = medals.transform.Find("GoldMedal").gameObject;

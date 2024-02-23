@@ -17,7 +17,7 @@ public class ProjectionLine : MonoBehaviour
     }
     private void LateUpdate()
     {
-        if (playerController.isAlive) { Project(); }
+        if (playerController.isAlive && playerController.canControl) { Project(); }
     }
 
     private void Project()

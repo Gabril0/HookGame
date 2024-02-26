@@ -5,14 +5,23 @@ using UnityEngine;
 public class RisingPlatform : MonoBehaviour
 {
     private float sinSum = 0;
-    [SerializeField][Range(10f, 100f)] float platformMovement;
+    [SerializeField][Range(1f, 100f)] float platformMovement;
+    [SerializeField] bool isReversed = false;
     void Start()
     {
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        sinSum += Time.deltaTime;
-        transform.position += new Vector3(0,Mathf.Sin(sinSum)/platformMovement,0);
+        if (!isReversed)
+        {
+            sinSum += Time.deltaTime;
+            transform.position += new Vector3(0, Mathf.Sin(sinSum) / platformMovement, 0);
+        }
+        else {
+            sinSum -= Time.deltaTime;
+            transform.position += new Vector3(0, Mathf.Sin(sinSum) / platformMovement, 0);
+        }
+        
     }
 }

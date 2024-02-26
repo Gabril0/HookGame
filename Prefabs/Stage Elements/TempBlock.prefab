@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6867768094882218531}
   - component: {fileID: 3321567025980196507}
   - component: {fileID: 1778735813285926479}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TempBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4517183846402432742
 SpriteRenderer:

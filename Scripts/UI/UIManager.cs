@@ -181,4 +181,7 @@ public class UIManager : MonoBehaviour
     public void Restart() {
         gameManager.ReloadScene();
     }
+    public void NextStage() {
+        gameManager.NextStage();
+    }
 }

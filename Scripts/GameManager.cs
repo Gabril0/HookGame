@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
         displayResults = true;
     }
     public void NextStage() {
-        
+        SceneManager.LoadScene("Level" + (GetStageNumber() + 1));
     }
 
 

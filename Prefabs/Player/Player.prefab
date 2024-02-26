@@ -395,7 +395,7 @@ Transform:
   - {fileID: 4257645041681813700}
   - {fileID: 536000684754879429}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &7070535739995839890
 Rigidbody2D:
@@ -479,6 +479,7 @@ MonoBehaviour:
   isAlive: 1
   isRolling: 0
   hittedHook: 0
+  terminalVelocity: 30
   isOnGround: 0
   maxRopeSize: 10
   playerLayer:

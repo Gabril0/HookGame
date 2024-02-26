@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     public bool playerHooked { get; set; }
     public bool hittedHook = false;
 
+    [SerializeField] private float terminalVelocity;
     private float originalGravity;
     private float ropeGravity;
     private float stopTime;
@@ -59,8 +60,8 @@ public class PlayerController : MonoBehaviour
     private GameObject eyeInstance;
     private bool canInstanceEye = true;
 
-    private bool hitWallRight;
-    private bool hitWallLeft;
+    //private bool hitWallRight;
+    //private bool hitWallLeft;
     private float lastTimeTouchedGround = 0;
 
     void Start()
@@ -109,6 +110,7 @@ public class PlayerController : MonoBehaviour
 
 
         rb.velocity = hittedHook ? new Vector2(tempVelocity.x, tempVelocity.y) : new Vector2(tempVelocity.x, rb.velocity.y);
+        rb.velocityY = Mathf.Clamp(rb.velocity.y, -terminalVelocity, 1000);
     }
 
     private void SideCheck()
@@ -128,13 +130,13 @@ public class PlayerController : MonoBehaviour
     private void Move() {
         acceleration = isOnGround ? originalAcceleration / 2 : originalAcceleration;
         if (isOnGround) { tempVelocity.y = 0; }
-        if (tempVelocity.x > 0 && hitWallRight && (Time.time - lastTimeTouchedGround > 0.5f)) {
-            tempVelocity.x = 0;
-        }
-        if (tempVelocity.x < 0 && hitWallLeft && (Time.time - lastTimeTouchedGround > 0.5f))
-        {
-            tempVelocity.x = 0;
-        }
+        //if (tempVelocity.x > 0 && hitWallRight && (Time.time - lastTimeTouchedGround > 0.5f)) {
+        //    tempVelocity.x = 0;
+        //}
+        //if (tempVelocity.x < 0 && hitWallLeft && (Time.time - lastTimeTouchedGround > 0.5f))
+        //{
+        //    tempVelocity.x = 0;
+        //}
         if (isOnGround && !playerHooked && !isRolling)
         {
             tempVelocity.x += Mathf.Abs(tempVelocity.x) < maxSpeed ? horizontalMovement * acceleration : 0;
@@ -199,7 +201,7 @@ public class PlayerController : MonoBehaviour
             {
                 directionHooked = (mousePosition - playerPosition).normalized; ;
                 hit = Physics2D.Raycast(transform.position, directionHooked, maxRopeSize, ~playerLayer);
-                speedOnHook = tempVelocity.x;
+                speedOnHook = tempVelocity.x ;
                 Invoke("HookActivation", eyeThrowAnimation.GetCurrentAnimatorStateInfo(0).length);
 
             }
@@ -291,10 +293,10 @@ public class PlayerController : MonoBehaviour
         isOnGround = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0.2f, 0f, 0f)
             , capsuleCollider.direction, 0, Vector2.down, 0.1f, ~playerLayer);
         lastTimeTouchedGround = isOnGround ? Time.time : lastTimeTouchedGround;
-        hitWallLeft = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
-            , capsuleCollider.direction, 0, Vector2.left, 0.1f, ~playerLayer);
-        hitWallRight = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
-            , capsuleCollider.direction, 0, Vector2.right, 0.1f, ~playerLayer);
+        //hitWallLeft = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
+            //, capsuleCollider.direction, 0, Vector2.left, 0.1f, ~playerLayer);
+        //hitWallRight = Physics2D.CapsuleCast(capsuleCollider.bounds.center, capsuleCollider.bounds.size - new Vector3(0, 0.2f, 0f)
+            //, capsuleCollider.direction, 0, Vector2.right, 0.1f, ~playerLayer);
 
     }
     private void InputRegister() {

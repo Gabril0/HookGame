@@ -94,6 +94,10 @@ public class PlayerController : MonoBehaviour
             horizontalMovement = 0;
             playerHooked = false;
             tempVelocity = Vector3.zero;
+            rb.freezeRotation = true;
+            Destroy(GameObject.Find("EyeEnd(Clone)"));
+            lineRenderer.enabled = false;
+            transform.rotation = Quaternion.Euler(0, 0, 0);
         }
 
     }

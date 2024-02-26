@@ -50,6 +50,8 @@ public class GameManager : MonoBehaviour
     public void NextStage() {
         SceneManager.LoadScene("Level" + (GetStageNumber() + 1));
     }
+    public void GoToMenu() {
+        SceneManager.LoadScene("Menu");}
 
 
 }

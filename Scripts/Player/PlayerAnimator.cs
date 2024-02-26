@@ -19,6 +19,12 @@ public class PlayerAnimator : MonoBehaviour
 
     void LateUpdate()
     {
+        if (animator.GetBool("isAlive") && !controller.isAlive) {
+            spinningShadow.SetActive(false);
+            animator.SetTrigger("isAlive");
+            animator.SetBool("isAlive", controller.isAlive);
+        }
+        
         animator.SetBool("isRolling",controller.isRolling);
         if (!controller.isRolling)
         {
@@ -30,6 +36,7 @@ public class PlayerAnimator : MonoBehaviour
         if (!controller.isRolling) {
             transform.rotation = Quaternion.identity;
         }
+        if(!controller.isAlive)spinningShadow.SetActive(false);
     }
     private void ShadowDelay() {
         spinningShadow.SetActive(false);

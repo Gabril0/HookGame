@@ -184,4 +184,9 @@ public class UIManager : MonoBehaviour
     public void NextStage() {
         gameManager.NextStage();
     }
+
+    public void GoToMenu() {
+        Time.timeScale = 1;
+        gameManager.GoToMenu();
+    }
 }

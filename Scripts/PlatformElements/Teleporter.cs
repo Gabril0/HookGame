@@ -11,6 +11,8 @@ public class Teleporter : MonoBehaviour
     [SerializeField] private Sprite bluePortal;
     [SerializeField] private Sprite orangePortal;
     [SerializeField] private Light2D lightComponent;
+    [SerializeField] private AudioClip sound;
+    [SerializeField] private AudioSource source;
     public bool canCollide = true;
     void Start()
     {
@@ -29,6 +31,8 @@ public class Teleporter : MonoBehaviour
     {
         if (collision.CompareTag("Player") && canCollide)
         {
+            source.clip = sound;
+            source.Play();
             otherTeleporter.canCollide = false;
             canCollide = false;
             collision.GetComponent<PlayerController>().canControl = false;

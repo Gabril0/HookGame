@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -48,6 +47,7 @@ public class GameManager : MonoBehaviour
         displayResults = true;
     }
     public void NextStage() {
+        if(GetStageNumber() == 11) SceneManager.LoadScene("Menu");
         SceneManager.LoadScene("Level" + (GetStageNumber() + 1));
     }
     public void GoToMenu() {

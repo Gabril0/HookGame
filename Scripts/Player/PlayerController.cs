@@ -95,6 +95,7 @@ public class PlayerController : MonoBehaviour
             playerHooked = false;
             tempVelocity = Vector3.zero;
             rb.freezeRotation = true;
+            if(GameObject.Find("EyeThrow")) GameObject.Find("EyeThrow").SetActive(false);
             Destroy(GameObject.Find("EyeEnd(Clone)"));
             lineRenderer.enabled = false;
             transform.rotation = Quaternion.Euler(0, 0, 0);

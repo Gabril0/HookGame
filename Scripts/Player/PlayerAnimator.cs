@@ -28,15 +28,18 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetBool("isRolling",controller.isRolling);
         if (!controller.isRolling)
         {
-            Invoke("ShadowDelay", 0.15f);
+            Invoke("ShadowDelay", 0.0f);
         }
         else {
-            spinningShadow.SetActive(true);
+            Invoke("ShadowDelayActivation", 0.25f);
         }
         if (!controller.isRolling) {
             transform.rotation = Quaternion.identity;
         }
         if(!controller.isAlive)spinningShadow.SetActive(false);
+    }
+    private void ShadowDelayActivation() {
+        spinningShadow.SetActive(true);
     }
     private void ShadowDelay() {
         spinningShadow.SetActive(false);

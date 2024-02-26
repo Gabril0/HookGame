@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class Bumper : MonoBehaviour
 {
+    [SerializeField] private AudioClip boing;
+    [SerializeField] private AudioSource source;
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Player"))
         {
+            source.clip = boing;
+            source.Play();
             Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
             PlayerController controller = collision.gameObject.GetComponent<PlayerController>();
 

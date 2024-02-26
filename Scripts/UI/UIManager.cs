@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject turnArrow;
     [SerializeField] TextMeshProUGUI countDownText;
     [SerializeField] GameObject pauseScreen;
+    [SerializeField] AudioSource source;
     private PlayerController playerController;
     private float timer;
     private DeveloperTime developerTime;
@@ -59,12 +60,15 @@ public class UIManager : MonoBehaviour
     private void CheckPause() {
         if (Input.GetKeyDown(KeyCode.Escape) && !gameManager.isPaused && !goal.isBeaten) {
             Time.timeScale = 0f;
+            gameManager.isPaused = true;
             pauseScreen.SetActive(true);
         }
 
     }
     public void UnPause(){
         pauseScreen.SetActive(false);
+        gameManager.isPaused = false;
+        source.Play();
         StartCoroutine(CountDown());
         
     }
@@ -179,14 +183,17 @@ public class UIManager : MonoBehaviour
         return resultingTime;
     }
     public void Restart() {
+        source.Play();
         gameManager.ReloadScene();
     }
     public void NextStage() {
+        source.Play();
         gameManager.NextStage();
     }
 
     public void GoToMenu() {
         Time.timeScale = 1;
+        source.Play();
         gameManager.GoToMenu();
     }
 }
